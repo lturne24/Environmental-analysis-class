@@ -101,7 +101,7 @@ P3
 
 T3Q1 <- function(x) {
   if (!is.numeric(x)) {
-    stop("womp womp")
+    stop("womp womp not a number womp womp")
   }
   stats <- list(
     mean = mean(x),
@@ -144,7 +144,18 @@ avgDrainState <- st_intersection(d.stations, d.counties) %>%
 
 avgDrainState 
 
-#Question ----
+#Questions ----
+#1  
+del.counties <- d.counties %>% dplyr:: filter(STATEFP10 == 10)
 
+sf::st_intersection(d.stations, del.counties)
+sf::st_intersection(del.counties, d.stations)
+
+
+#2 
+print("i found that using github was challenging because of locked file issue 
+      but once that was resolved it was much easier, additionally i was strugglign to 
+      understand what some of the headers did, is there a metadata file or 
+      should i just know. each of these headers means ") 
 
 
