@@ -151,11 +151,17 @@ del.counties <- d.counties %>% dplyr:: filter(STATEFP10 == 10)
 sf::st_intersection(d.stations, del.counties)
 sf::st_intersection(del.counties, d.stations)
 
+Print (" ")
 
 #2 
 print("i found that using github was challenging because of locked file issue 
       but once that was resolved it was much easier, additionally i was strugglign to 
       understand what some of the headers did, is there a metadata file or 
-      should i just know. each of these headers means ") 
-
+      should i just know what each of these headers means ") 
+#3
+print (" i would like to see mapping on R and different statsically test your can do with maps,
+       most of my past research has been lab based not field based so i would like
+       to gain experience in working with more field based data/ location data.i also would
+       like more things to organize my code better like with the 4 dashes, i didnt know that and 
+       it was super helpful")
 
