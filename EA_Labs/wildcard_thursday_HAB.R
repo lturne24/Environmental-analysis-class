@@ -19,6 +19,14 @@ lake_s <- sf::read_sf(lake_s)
 glimpse(bb_miss)
 
 
+install.packages("terra")
+install.packages("tidyterra")
+install.packages("tmap")
+library(tidyverse)
+library(sf)
+library(terra)
+library(tidyterra)
+library(tmap)
 
 
 
