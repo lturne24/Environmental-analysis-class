@@ -151,11 +151,15 @@ del.counties <- d.counties %>% dplyr:: filter(STATEFP10 == 10)
 sf::st_intersection(d.stations, del.counties)
 sf::st_intersection(del.counties, d.stations)
 
-Print (" ")
+Print (" no they our not the one with d.stations first is a complete agruement but the 2nd one
+       with del.counties first R wants you to add more to the code to make a complete command
+       addtionally d.stations is a point and del.counties is a shape so the first ask where 
+       our these points located in this shape but the second is just a shape with points 
+       inside it")
 
 #2 
 print("i found that using github was challenging because of locked file issue 
-      but once that was resolved it was much easier, additionally i was strugglign to 
+      but once that was resolved it was much easier, additionally i was struggling to 
       understand what some of the headers did, is there a metadata file or 
       should i just know what each of these headers means ") 
 #3

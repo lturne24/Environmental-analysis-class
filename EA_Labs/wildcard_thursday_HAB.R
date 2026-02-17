@@ -1,4 +1,5 @@
 #Wildcard thursday 
+install.packages("rmarkdown")
 
 
 library(tidyverse)
@@ -18,15 +19,6 @@ lake_s <- sf::read_sf(lake_s)
 glimpse(bb_miss)
 
 
-
-P2 <- ggplot(d.stations, aes(x = Drainage_A)) +
-  geom_histogram(bins = 25) +
-  labs(
-    title = "Drainage Area for Monitoring Stations",
-    x = "Drainage Area",
-    y = "Count"
-  )
-P2
 
 
 
