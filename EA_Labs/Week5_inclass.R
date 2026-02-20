@@ -15,3 +15,6 @@ portage <- oh_counties %>% dplyr::filter(., NAME == "Portage")
 
 
 portage %>% tm_shape(.) + tm_polygons()
+
+
+buffer(streams.303d)

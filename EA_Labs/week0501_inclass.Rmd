@@ -37,7 +37,7 @@ Let's load some data. Note, this is a different file format than you're (probabl
 You may also notice the path is structured slightly differently that before. When in standard R script (for example, myscript.R), the "." notation refers to the location of the RStudio project file. HOWEVER, when using Rmd files, the starting location is where the .Rmd file is. Therefore, we need to edit our path a bit. ".." means "go up a level" (in this case, FROM the src directory and TO the root of the project) THEN find the `data` directory, then the `ohio` directory, then find the file.
 
 ```{r readstreams, echo=FALSE}
-oh_streams <- read_sf("../data/ohio/ohio_rivers.gpkg")
+oh_streams <- read_sf("./ohio/ohio_rivers.gpkg")
 ```
 
 
@@ -272,6 +272,13 @@ Yikes, that's a bit of a mess. Let's turn that into a tibble (which is a kind of
 
 ```{r}
 sf::st_distance(study.streams, oh_parks_p_studyarea) %>% as_tibble()
+
+
+
+
+
+
+
 ```
 
 That's more intepretable. We have a 3 x 345 table. How might you infer what each row and each column represent? 
@@ -288,12 +295,29 @@ I have given you all of the tools to complete the following items:
 - Make a map (using `tmap`) of just those parks (not all parks), overlaid on a Ohio county map
 - Add a color to the parks based on the type of park (like we did)
 
+```{r}
+T1 <- st_intersection( buffs, oh_parks_p_studyarea)
+
+
+tm_shape(study.area_p)+ tm_polygons(fill = "NAME")+ 
+  tm_shape(T1) + tm_polygons(fill = "FEATTYPE", palette = "brewer.dark2") +
+  tm_shape(streams.303d) + tm_lines(col = "purple")
+
+
+tmap :: ttm()
+
+```
+
 ### Task(s) 2
 - Calculate the distance between parks and 303d streams in the study area
 - Then, calculate the *difference* between projected and unprojected distances
 - Then, make a histogram of those differences (better termed "errors")
+```{r}
+T2 <- st_intersection(streams.303d, oh_parks_p_studyarea )
 
+t2 <- st_distance()
 
+```
 ### Bonus work
 - How many counties do NOT have a 303d stream in them?
 - What county intersects the most parks? The most streams? The most 303d streams?
