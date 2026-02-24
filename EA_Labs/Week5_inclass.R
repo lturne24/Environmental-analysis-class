@@ -18,3 +18,18 @@ portage %>% tm_shape(.) + tm_polygons()
 
 
 buffer(streams.303d)
+
+
+
+#week 8 i think ----
+library(tidyverse)
+library(GISTools)
+library(sf)
+library(tmap)
+library(terra)
+
+
+
+
+
+

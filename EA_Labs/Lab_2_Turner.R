@@ -6,13 +6,13 @@ library(ggplot2)
 library(tmap)
 
 #reading the data
-p.counties <- "./CBW/County_Boundaries.shp"
-p.dams <-"./CBW/Streams_Opened_by_Dam_Removal_2012_2017.shp"
-p.blockage <- "./CBW/Dam_or_Other_Blockage_Removed_2012_2017.shp"
 
-d.counties <- sf::read_sf(p.counties)
-d.dams <- sf::read_sf(p.dams)
-d.blockage <- sf::read_sf(p.blockage)
+counties <- sf::read_sf("./CBW/County_Boundaries.shp") %>% sf::st_make_valid()
+
+dams <- sf::read_sf("./CBW/Dam_or_Other_Blockage_Removed_2012_2017.shp") %>% sf::st_make_valid()
+
+streams <- sf::read_sf("./CBW/Streams_Opened_by_Dam_Removal_2012_2017.shp") %>% sf::st_make_valid()
+
 bmps <- read_csv("./CBW/BMPreport2016_landbmps.csv")
 
 glimpse(d.counties)
@@ -22,3 +22,8 @@ glimpse(bmps)
 
 
 
+counties <- sf::read_sf("./CBW/County_Boundaries.shp") %>% sf::st_make_valid()
+
+dams <- sf::read_sf("./CBW/Dam_or_Other_Blockage_Removed_2012_2017.shp") %>% sf::st_make_valid()
+
+streams <- sf::read_sf("./CBW/Streams_Opened_by_Dam_Removal_2012_2017.shp") %>% sf::st_make_valid()
