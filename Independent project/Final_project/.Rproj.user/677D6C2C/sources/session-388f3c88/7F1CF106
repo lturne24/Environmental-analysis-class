@@ -3,7 +3,7 @@
     "path": "~/Documents/GitHub/Environmental-analysis-class/Independent project/Final_project/Final_project_Turner.R",
     "project_path": "Final_project_Turner.R",
     "type": "r_source",
-    "hash": "2080275666",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1772114682785.0,
@@ -13,15 +13,17 @@
         "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "4,17",
-        "scrollLine": "0"
+        "cursorPosition": "66,0",
+        "scrollLine": "47",
+        "docOutlineVisible": "1",
+        "docOutlineSize": "110"
     },
     "folds": "",
-    "lastKnownWriteTime": 1772115369,
+    "lastKnownWriteTime": 1772545049,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1772115369461,
+    "last_content_update": 1772545049145,
     "read_only": false,
     "read_only_alternatives": []
 }

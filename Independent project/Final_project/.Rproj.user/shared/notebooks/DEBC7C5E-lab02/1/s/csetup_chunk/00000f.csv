@@ -1,0 +1,12 @@
+"0","# setup"
+"0","library(tidyverse)"
+"0","library(sf)"
+"0","library(tmap)"
+"2","Registered S3 method overwritten by 'data.table':
+  method           from
+  print.data.table     
+"
+"2","Registered S3 method overwritten by 'htmlwidgets':
+  method           from         
+  print.htmlwidget tools:rstudio
+"
