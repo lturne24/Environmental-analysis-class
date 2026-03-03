@@ -75,11 +75,9 @@ Q2.1
 streams_counties <- st_intersection(streams, counties)
 
 Q2.2 <- streams_counties %>%
-  st_drop_geometry() %>%
-  group_by(GEOID10) %>%
+  st_drop_geometry() %>% group_by(GEOID10) %>%
   summarise(totalLength = sum(LengthKM, na.rm = TRUE)) %>%
-  arrange(desc(totalLength)) %>%
-  slice(1:3)
+  arrange(desc(totalLength)) %>% slice(1:3)
 Q2.2
 
 #question 2.3
