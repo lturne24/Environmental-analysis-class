@@ -7,8 +7,8 @@ library(lubridate)
 library(ggplot2)
 library(ggspatial)
 library(RColorBrewer)
-
-
+library(maps)
+library(patchwork)
 
 #load in data ----
 waterchem <- read.csv("./data/River_stream_18_19_water_chemistry_data.csv")
@@ -20,10 +20,10 @@ names(waterchem)
 names (periphyton)
 names(chlorophyll)
 names (SiteInfo)
-#load data into one big dataset ----
 
 
-#just data investigation stuff
+
+#just data exploring stuff----
 dim(waterchem)
 dim(chlorophyll)
 dim(periphyton)
@@ -39,10 +39,14 @@ length(unique(SiteInfo$SITE_ID))
 summary(waterchem$PTL_RESULT)
 hist(waterchem$PTL_RESULT, breaks = 50)
 unique(waterchem$PTL_UNITS)
+#is right skewed HEAVILY
+
 #chlorphy 
 summary(chlorophyll$RESULT)
 hist(chlorophyll$RESULT, breaks = 50)
 unique(chlorophyll$RESULT_UNITS)
+#right skewed but not alot 
+
 
 #missing results
 sum(is.na(waterchem$PTL_RESULT))
