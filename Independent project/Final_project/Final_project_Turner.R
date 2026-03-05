@@ -16,11 +16,73 @@ periphyton <- read.csv ("./data/River_stream_18_19_water_periphyton_biomass.csv"
 chlorophyll <- read.csv("./data/River_stream_18_19_water_chlorophyll_a.csv")
 SiteInfo <- read.csv("./data/River_stream_18_19_siteInfo_data.csv")
 
+
+
+#only pulls nutrients out 
+nutrients <- waterchem %>%
+  select(
+    SITE_ID, VISIT_NO,
+    AMMONIA_N_RESULT,
+    NITRATE_N_RESULT,
+    NITRITE_N_RESULT,
+    NITRATE_NITRITE_N_RESULT,
+    TKN_RESULT,
+    NTL_RESULT,
+    NTL_DISS_RESULT,
+    PTL_RESULT,
+    PTL_DISS_RESULT,
+    DOC_RESULT,
+    TSS_RESULT,
+    TURB_RESULT
+  )
+
+#general summary of stuff 
+nutrients %>%
+  select(-SITE_ID, -VISIT_NO) %>%
+  summarise(across(everything(), list(
+    min = ~min(., na.rm = TRUE),
+    median = ~median(., na.rm = TRUE),
+    mean = ~mean(., na.rm = TRUE),
+    max = ~max(., na.rm = TRUE)
+  )))
+
+
+#look at N:P ratios 
+nutrients <- nutrients %>%
+  mutate(NP_ratio = NTL_RESULT / PTL_RESULT)
+summary(nutrients$NP_ratio)
+hist(nutrients$NP_ratio, breaks = 50)
+
+#attach data 
+chl_clean <- chlorophyll %>%
+  select(SITE_ID, VISIT_NO, CHL = RESULT)
+
+full_data <- nutrients %>%
+  left_join(chl_clean, by = c("SITE_ID", "VISIT_NO"))
+us_states <- map_data("state")
+
+# data loading ----
 names(waterchem)
 names (periphyton)
 names(chlorophyll)
 names (SiteInfo)
 
+
+#sites with high nutrient (PandN) but low C
+HNLC_sites <- combined_spatial %>%
+  filter(HNLC_strict == 1) %>%
+  distinct(SITE_ID, STATE_NM, US_L3NAME, LAT_DD83, LON_DD83)
+
+HNLC_sites
+nrow(HNLC_sites)
+
+#high P low c only sites
+HNLC_P_only <- combined_spatial %>%
+  filter(HNLC_stat == 1) %>%
+  distinct(SITE_ID, STATE_NM, US_L3NAME)
+HNLC_P_only
+
+nrow(HNLC_P_only)
 
 
 #just data exploring stuff----

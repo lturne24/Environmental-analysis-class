@@ -235,3 +235,82 @@ ggplot() +
     x = "Longitude",
     y = "Latitude"
   )
+
+#map of sites----
+full_data <- full_data %>%
+  mutate(
+    nutrient_lowCHL_group = case_when(
+      PTL_RESULT > P_high & NTL_RESULT > N_high & CHL < Chl_low ~ "High N + High P + Low Chl",
+      PTL_RESULT > P_high & NTL_RESULT <= N_high & CHL < Chl_low ~ "High P only + Low Chl",
+      NTL_RESULT > N_high & PTL_RESULT <= P_high & CHL < Chl_low ~ "High N only + Low Chl",
+      TRUE ~ "Background"
+    )
+  )
+
+SiteInfo <- SiteInfo %>%
+  mutate(VISIT_NO = as.integer(VISIT_NO))
+
+combined_spatial <- full_data %>%
+  left_join(
+    SiteInfo %>%
+      select(SITE_ID, VISIT_NO, LAT_DD83, LON_DD83, STATE_NM, US_L3NAME),
+    by = c("SITE_ID", "VISIT_NO")
+  )
+
+us_states <- map_data("state")
+ggplot() +
+  # US outline
+  geom_polygon(
+    data = us_states,
+    aes(x = long, y = lat, group = group),
+    fill = "gray95",
+    color = "black",
+    linewidth = 0.2
+  ) +
+  # Background sites
+  geom_point(
+    data = subset(combined_spatial,
+                  nutrient_lowCHL_group == "Background"),
+    aes(x = LON_DD83, y = LAT_DD83),
+    color = "grey80",
+    size = 1,
+    alpha = 0.6
+  ) +
+  # Highlighted sites
+  geom_point(
+    data = subset(combined_spatial,
+                  nutrient_lowCHL_group != "Background"),
+    aes(x = LON_DD83,
+        y = LAT_DD83,
+        color = nutrient_lowCHL_group),
+    size = 2.5,
+    alpha = 0.9
+  ) +
+  scale_color_manual(values = c(
+    "High N + High P + Low Chl" = "purple",
+    "High P only + Low Chl" = "red",
+    "High N only + Low Chl" = "green"
+  )) +
+  coord_fixed(1.3) +
+  theme_minimal() +
+  labs(
+    title = "Low Chlorophyll Sites by Nutrient Category",
+    x = "Longitude",
+    y = "Latitude",
+    color = "Category"
+  )
+
+
+#list of sites ----
+high_nutrient_low_chl_sites <- combined_spatial %>%
+  filter(nutrient_lowCHL_group != "Background") %>%
+  distinct(
+    SITE_ID,
+    STATE_NM,
+    US_L3NAME,
+    LAT_DD83,
+    LON_DD83,
+    nutrient_lowCHL_group
+  )
+
+high_nutrient_low_chl_sites
