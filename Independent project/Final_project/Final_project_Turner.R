@@ -66,7 +66,7 @@ names(waterchem)
 names (periphyton)
 names(chlorophyll)
 names (SiteInfo)
-
+names (Landscape)
 
 #sites with high nutrient (PandN) but low C
 HNLC_sites <- combined_spatial %>%
