@@ -1,9 +1,9 @@
 {
     "id": "452619CB",
-    "path": "~/Documents/GitHub/Environmental-analysis-class/Independent project/Final_project/Organized code.R",
-    "project_path": "Organized code.R",
+    "path": "~/Documents/GitHub/Environmental-analysis-class/Independent project/Final_project/EPA_RandS.R",
+    "project_path": "EPA_RandS.R",
     "type": "r_source",
-    "hash": "1368974449",
+    "hash": "2045625438",
     "contents": "",
     "dirty": false,
     "created": 1772719548905.0,
@@ -13,16 +13,17 @@
         "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "72,0",
-        "scrollLine": "4",
-        "docOutlineVisible": "0"
+        "cursorPosition": "13,14",
+        "scrollLine": "0",
+        "docOutlineVisible": "1",
+        "docOutlineSize": "148"
     },
     "folds": "",
-    "lastKnownWriteTime": 1772762015,
+    "lastKnownWriteTime": 1772897161,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1772762015861,
+    "last_content_update": 1772897161,
     "read_only": false,
     "read_only_alternatives": []
 }

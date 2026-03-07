@@ -135,7 +135,64 @@ combined_spatial <- combined %>%
   left_join(SiteInfo %>% select(SITE_ID, LAT_DD83, LON_DD83, STATE),
             by = "SITE_ID")
 
+#ECOREGIONS ----
 
+#figure out what level of ecoreigon to use 
+#probably want to use AG_ECO9_NM or NA_L1NAME
+HNLC_data %>% summarise(num_ecoregions = n_distinct(AG_ECO3_NM)) 
+unique(HNLC_data$AG_ECO3_NM)
+
+#THIS ONE
+HNLC_data %>% summarise(num_ecoregions = n_distinct(AG_ECO9_NM))
+unique(HNLC_data$AG_ECO9_NM)
+
+HNLC_data %>% summarise(num_ecoregions = n_distinct(US_L4NAME))
+unique(HNLC_data$US_L4NAME)
+
+HNLC_data %>% summarise(num_ecoregions = n_distinct(US_L3NAME))
+unique(HNLC_data$US_L3NAME)
+
+HNLC_data %>% summarise(num_ecoregions = n_distinct(NA_L2NAME))
+unique(HNLC_data$NA_L2NAME)
+
+HNLC_data %>% summarise(num_ecoregions = n_distinct(NA_L1NAME))
+unique(HNLC_data$NA_L1NAME)
+
+
+
+
+#ecoreiong map 
+
+# Load required packages
+library(ggplot2)
+library(maps)
+library(dplyr)
+
+# Example: your HNLC_data should have at least columns: longitude, latitude, AG_ECO9
+# If not, rename the columns to lon/lat
+# HNLC_data <- rename(HNLC_data, lon = LONGITUDE_COL, lat = LATITUDE_COL)
+
+# Get US map data
+us_map <- map_data("state")
+
+# Plot
+ggplot() +
+  # US states as background
+  geom_polygon(data = us_map, 
+               aes(x = long, y = lat, group = group),
+               fill = "gray90", color = "white") +
+  # Plot your sites colored by ecoregion
+  geom_point(data = HNLC_data, 
+             aes(x = LON_DD83, y = LAT_DD83, color = AG_ECO9),
+             size = 0.5, alpha = 0.9) +
+  # Color scale
+  scale_color_brewer(palette = "Set1") +
+  coord_fixed(1.3) +
+  theme_minimal() +
+  labs(title = "HNLC Sites by EPA Eco 9 Regions",
+       x = "Longitude",
+       y = "Latitude",
+       color = "Eco Region")
 
 
 
