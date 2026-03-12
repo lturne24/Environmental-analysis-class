@@ -71,6 +71,55 @@ combined_data <- combined_data %>% left_join(periphyton_clean,
 #THE BIG DADDY OF DATA SETS ----
 HNLC_data <- combined_data
 
+#just mapping the sites (all of them) ----
+#chlorophyll map (all Sites)
+ggplot() +
+  geom_polygon(data = us_states,
+               aes(x = long, y = lat, group = group),
+               fill = "white",
+               color = "black",
+               linewidth = 0.2) +
+  
+  geom_point(data = HNLC_data,
+             aes(x = LON_DD83, y = LAT_DD83, color = CHLA_RESULT),
+             size = 1) +
+  
+  scale_color_gradient(
+    low = "lightgreen",
+    high = "darkgreen",
+    na.value = "red"
+  ) +
+  
+  coord_fixed(1.3) +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom"
+  )
+
+#Perphyiton  map (all Sites)
+ggplot() +
+  geom_polygon(data = us_states,
+               aes(x = long, y = lat, group = group),
+               fill = "white",
+               color = "black",
+               linewidth = 0.2) +
+  geom_point(data = HNLC_data,
+             aes(x = LON_DD83, y = LAT_DD83, color= PERIPHYTON_RESULT),
+             size = 1) +
+  scale_color_gradient(
+    low = "lightgreen",
+    high = "darkgreen",
+    na.value = "red"
+  ) +
+  
+  coord_fixed(1.3) +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom"
+  )
+
+
+
 #determine sites with High nutrients low chlorophyll----
 
 # Calculate thresholds (top quarlite of nutrients bottom of chlorophyll )
@@ -138,7 +187,7 @@ ggplot() +
                linewidth = 0.2) +
   geom_point(data = HNLChlorophyll_sites_list,
              aes(x = LON_DD83, y = LAT_DD83, color = nutrient_group),
-             size = 1) +
+             size = 1.5) +
   coord_fixed(1.3) +
   theme_minimal() + 
   theme(
@@ -1002,7 +1051,7 @@ ggplot() +
                  y = LAT_DD83,
                  color = EcoRegion,
                  shape = nutrient_group),
-             size = 1) +
+             size = 1.5) +
   coord_fixed(1.3) +
   theme_minimal() +
   ggtitle("HNLC Chlorophyll Sites Across EPA EcoRegions") +
@@ -1332,7 +1381,7 @@ ggplot() +
              size = 1) +
   coord_fixed(1.3) +
   theme_minimal() +
-  ggtitle("HNLC Chlorophyll Sites Across EPA EcoRegions") +
+  ggtitle("HNLC Chlorophyll Sites Across EPA Eco 3 Regions") +
   theme(legend.position = "right")
 
 #periphyton map by ecoregion 
@@ -1350,7 +1399,7 @@ ggplot() +
              size = 1) +
   coord_fixed(1.3) +
   theme_minimal() +
-  ggtitle("HNLC Periphyton Sites Across EPA EcoRegions") +
+  ggtitle("HNLC Periphyton Sites Across EPA Eco 3 Regions") +
   theme(legend.position = "right")
 
 

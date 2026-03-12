@@ -155,8 +155,24 @@ unique(HNLC_data$US_L3NAME)
 HNLC_data %>% summarise(num_ecoregions = n_distinct(NA_L2NAME))
 unique(HNLC_data$NA_L2NAME)
 
+
 HNLC_data %>% summarise(num_ecoregions = n_distinct(NA_L1NAME))
 unique(HNLC_data$NA_L1NAME)
+
+
+
+geom_polygon(data = us_map, aes(x = long, y = lat, group = group), fill = "gray90", color = "white") +
+  geom_point(data = HNLC_data, 
+             aes(x = LON_DD83, y = LAT_DD83, color = NA_L1NAME),
+             size = 0.5, alpha = 0.9) +
+  scale_color_brewer(palette = "Set1") +
+  coord_fixed(1.3) +
+  theme_minimal() +
+  labs(title = "HNLC Sites by EPA Eco 9 Regions",
+       x = "Longitude",
+       y = "Latitude",
+       color = "Eco Region")
+
 
 
 
@@ -194,5 +210,24 @@ ggplot() +
        y = "Latitude",
        color = "Eco Region")
 
+
+#looking at the eco region by NA_L1
+ggplot() +
+  # US states as background
+  geom_polygon(data = us_map, 
+               aes(x = long, y = lat, group = group),
+               fill = "gray90", color = "white") +
+  # Plot your sites colored by ecoregion
+  geom_point(data = waterchem, 
+             aes(x = LON_DD83, y = LAT_DD83, color = waterchem$MAGNESIUM_RESULT),
+             size = 0.5, alpha = 0.9) +
+  # Color scale
+  scale_color_brewer(palette = "Set1") +
+  coord_fixed(1.3) +
+  theme_minimal() +
+  labs(title = "HNLC Sites by EPA Eco 9 Regions",
+       x = "Longitude",
+       y = "Latitude",
+       color = "Eco Region")
 
 
