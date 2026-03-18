@@ -159,6 +159,8 @@ unique(HNLC_data$NA_L2NAME)
 HNLC_data %>% summarise(num_ecoregions = n_distinct(NA_L1NAME))
 unique(HNLC_data$NA_L1NAME)
 
+HNLC_data %>% summarise(num_ecoregions = n_distinct(PERIPHYTON_RESULT))
+unique(HNLC_data$PERIPHYTON_RESULT)
 
 
 geom_polygon(data = us_map, aes(x = long, y = lat, group = group), fill = "gray90", color = "white") +
