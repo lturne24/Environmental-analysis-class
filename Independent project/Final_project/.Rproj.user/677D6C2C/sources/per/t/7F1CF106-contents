@@ -232,4 +232,15 @@ ggplot() +
        y = "Latitude",
        color = "Eco Region")
 
+#List of sites 
+
+#all HNLC sites across all USA
+HNLChlorophyll_sites_list
+
+#all HNLC sites across eco 9 regions 
+byECO9_HNLChlorophyll_sites
+
+#all HNLC sites across eco 3 regions 
+byECO3_HNLChlorophyll_sites
+
 
