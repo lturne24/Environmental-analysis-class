@@ -155,6 +155,9 @@ unique(HNLC_data$US_L3NAME)
 HNLC_data %>% summarise(num_ecoregions = n_distinct(NA_L2NAME))
 unique(HNLC_data$NA_L2NAME)
 
+HNLC_data %>% summarise(num_ecoregions = n_distinct(AG_ECO9_NM))
+unique(HNLC_data$AG_ECO_NM)
+
 
 HNLC_data %>% summarise(num_ecoregions = n_distinct(NA_L1NAME))
 unique(HNLC_data$NA_L1NAME)
@@ -242,5 +245,53 @@ byECO9_HNLChlorophyll_sites
 
 #all HNLC sites across eco 3 regions 
 byECO3_HNLChlorophyll_sites
+
+
+hist(HNLC_data$PTL_RESULT)
+
+
+#put box plot on top of each other 
+
+library(ggplot2)
+library(patchwork)
+
+p1 <- ggplot(data = HNLC_data, aes(x = AG_ECO9, y = CHLA_RESULT, fill = AG_ECO9)) +
+  geom_boxplot(width = 0.2,
+               outlier.size = 0.5,
+               outlier.alpha = 0.8) +
+  scale_fill_brewer(palette = "Pastel1") +
+  labs(title = "Chlorophyll Box Plot",
+       y = "Chlorophyll Results",
+       x = "ECO 9 Region") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+p2 <- ggplot(data = HNLC_data, aes(x = AG_ECO9, y = PTL_RESULT, fill = AG_ECO9)) +
+  geom_boxplot(width = 0.2,
+               outlier.size = 0.5,
+               outlier.alpha = 0.8) +
+  scale_fill_brewer(palette = "Pastel1") +
+  labs(title = "Phosphorus Box Plot",
+       y = "Phosphorus Results",
+       x = "ECO 9 Region") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+p3 <- ggplot(data = HNLC_data, aes(x = AG_ECO9, y = NTL_RESULT, fill = AG_ECO9)) +
+  geom_boxplot(width = 0.2,
+               outlier.size = 0.5,
+               outlier.alpha = 0.8) +
+  scale_fill_brewer(palette = "Pastel1") +
+  labs(title = "Nitrogen Box Plot",
+       y = "Nitrogen Results",
+       x = "ECO 9 Region") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+# Stack them vertically
+p1 / p2 / p3
+
+
+
 
 

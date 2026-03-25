@@ -13,6 +13,7 @@ library(patchwork)
 library(readr)
 library(dplyr)
 library(writexl)
+library(openxlsx)
 
 #load in data ----
 waterchem <- read.csv("./data/River_stream_18_19_water_chemistry_data.csv")
@@ -864,36 +865,76 @@ write_xlsx(
     ECO3 = byECO3_HNLChlorophyll_sites
   ),"HNLChlorophyll_sites.xlsx")
 
-#summary statstics----
+#Box and violin plots ----
 
-##all of USA ----
-summary(HNLC_data$CHLA_RESULT)
-summary(HNLC_data$PTL_RESULT)
-summary(HNLC_data$NTL_RESULT)
-
-ggplot(data = HNLC_data, aes(x ="", y =NTL_RESULT)) +
-  geom_violin(alpha = 0.5) +  # Add the violin plot layer with transparency
-  geom_boxplot(width = 0.1) +  # Add the box plot layer with reduced width
+##all of USA  box plots ----
+ggplot(data = HNLC_data, aes(x = "", y = CHLA_RESULT)) +
+  geom_violin(alpha = 0.5) +
+  geom_boxplot(width = 0.2, fill = "white") +
+  scale_fill_brewer(palette = "Pastel1") +
   labs(title = "Violin Plot with Box Plot Overlay",
-       y = "Nitrogen results ",
-       x = "ECO 3 region ") +
-  theme_minimal() 
+       y = "Chlorophyll results ",
+       x = "all usa") +
+  theme_minimal()+
+  theme(legend.position = "none")
+
+ggplot(data = HNLC_data, aes(x = "", y = PTL_RESULT)) +
+  geom_violin(alpha = 0.5) +
+  geom_boxplot(width = 0.2, fill = "white") +
+  scale_fill_brewer(palette = "Pastel1") +
+  labs(title = "Violin Plot with Box Plot Overlay",
+       y = "Phorosurpos results ",
+       x = "all usa") +
+  theme_minimal()+
+  theme(legend.position = "none")
+
+ggplot(data = HNLC_data, aes(x = "", y = NTL_RESULT)) +
+  geom_violin(alpha = 0.5) +
+  geom_boxplot(width = 0.2, fill = "white") +
+  scale_fill_brewer(palette = "Pastel1") +
+  labs(title = "Violin Plot with Box Plot Overlay",
+       y = "nitrogen results ",
+       x = "all usa") +
+  theme_minimal()+
+  theme(legend.position = "none")
+
+#Just boxplot 
+ggplot(data = HNLC_data, aes(x = "", y = CHLA_RESULT)) +
+  geom_boxplot(width = 0.2,
+               outlier.size = 0.5,      #smaller dots
+               outlier.alpha = 0.8) + #transparent
+  labs(title = "Chlorophyll Results",
+       y = "Chlorophyll",
+       x = "All USA") +
+  theme_minimal() +
+  theme(legend.position = "none", #legend bye 
+        aspect.ratio = 2) #make taller 
 
 
-##eco 3 regions----
+ggplot(data = HNLC_data, aes(x = "", y = PTL_RESULT)) +
+  geom_boxplot(width = 0.2,
+               outlier.size = 0.5,      #smaller dots
+               outlier.alpha = 0.8) + #transparent
+  labs(title = "Phosphorus Results",
+       y = "Phosphorus",
+       x = "All USA") +
+  theme_minimal() +
+  theme(legend.position = "none", 
+        aspect.ratio = 2)
 
-#Plains and Lowlands
-summary(PLNLOW$CHLA_RESULT)
-summary(PLNLOW$PTL_RESULT)
-summary(PLNLOW$NTL_RESULT)
-#Eastern Highlands
-summary(EHIGH$CHLA_RESULT)
-summary(EHIGH$PTL_RESULT)
-summary(EHIGH$NTL_RESULT)
-#West 
-summary(WMTNS$CHLA_RESULT)
-summary(WMTNS$PTL_RESULT)
-summary(WMTNS$NTL_RESULT)
+
+ggplot(data = HNLC_data, aes(x = "", y = NTL_RESULT)) +
+  geom_boxplot(width = 0.2,
+               outlier.size = 0.5,      #smaller dots
+               outlier.alpha = 0.8) + #transparent
+  labs(title = "Nitrogen Results",
+       y = "Nitrogen",
+       x = "All USA") +
+  theme_minimal() +
+  theme(legend.position = "none", 
+        aspect.ratio = 2)
+
+##eco 3 regions box plots----
 
 #box and violing plots 
 ggplot(data = HNLC_data, aes(x = AG_ECO3, y = CHLA_RESULT, fill = AG_ECO3)) +
@@ -901,7 +942,7 @@ ggplot(data = HNLC_data, aes(x = AG_ECO3, y = CHLA_RESULT, fill = AG_ECO3)) +
   geom_boxplot(width = 0.2, fill = "white") +
   scale_fill_brewer(palette = "Pastel1") +
   labs(title = "Violin Plot with Box Plot Overlay",
-       y = "Phosphorus Results",
+       y = "Chlorophyll Results",
        x = "ECO 3 Region") +
   theme_minimal()+
   theme(legend.position = "none")
@@ -921,33 +962,192 @@ ggplot(data = HNLC_data, aes(x = AG_ECO3, y = NTL_RESULT, fill = AG_ECO3)) +
   geom_boxplot(width = 0.2, fill = "white") +
   scale_fill_brewer(palette = "Pastel1") +
   labs(title = "Violin Plot with Box Plot Overlay",
+       y = "Nitrogen Results",
+       x = "ECO 3 Region") +
+  theme_minimal()+
+  theme(legend.position = "none")
+
+#Just box plots 
+ggplot(data = HNLC_data, aes(x = AG_ECO3, y = CHLA_RESULT, fill = AG_ECO3)) +
+  geom_boxplot(width = 0.2,
+               outlier.size = 0.5,      #smaller dots
+               outlier.alpha = 0.8) + #transparent
+  scale_fill_brewer(palette = "Pastel1") +
+  labs(title = "Chlorophyll Box Plot",
+       y = "Chlorophyll  Results",
+       x = "ECO 3 Region") +
+  theme_minimal()+
+  theme(legend.position = "none")
+
+ggplot(data = HNLC_data, aes(x = AG_ECO3, y = PTL_RESULT, fill = AG_ECO3)) +
+  geom_boxplot(width = 0.2,
+               outlier.size = 0.5,      #smaller dots
+               outlier.alpha = 0.8) + #transparent
+  scale_fill_brewer(palette = "Pastel1") +
+  labs(title = "Phosphorus Box Plot ",
        y = "Phosphorus Results",
        x = "ECO 3 Region") +
   theme_minimal()+
   theme(legend.position = "none")
-##eco 9 regions----
 
+ggplot(data = HNLC_data, aes(x = AG_ECO3, y = NTL_RESULT, fill = AG_ECO3)) +
+  geom_boxplot(width = 0.2,
+               outlier.size = 0.5,      #smaller dots
+               outlier.alpha = 0.8) + #transparent
+  scale_fill_brewer(palette = "Pastel1") +
+  labs(title = "Nitrogen Box Plot",
+       y = "Nitrogen Results",
+       x = "ECO 3 Region") +
+  theme_minimal()+
+  theme(legend.position = "none")
+
+#eco 9 region boxplots ----
 #box and violing plots 
-ggplot(data = HNLC_data, aes(x = AG_ECO9, y =CHLA_RESULT)) +
-  geom_violin(alpha = 0.5) +  # Add the violin plot layer with transparency
-  geom_boxplot(width = 0.2) +  # Add the box plot layer with reduced width
-  labs(title = "Violin Plot with Box Plot Overlay",
-       y = "Cchorllphyll results",
-       x = "ECO 9 region ") +
-  theme_minimal() 
 
-ggplot(data = HNLC_data, aes(x = AG_ECO9, y =PTL_RESULT)) +
-  geom_violin(alpha = 0.5) +  # Add the violin plot layer with transparency
-  geom_boxplot(width = 0.2) +  # Add the box plot layer with reduced width
+ggplot(data = HNLC_data, aes(x = AG_ECO9, y = CHLA_RESULT, fill = AG_ECO9)) +
+  geom_violin(alpha = 0.5) +
+  geom_boxplot(width = 0.2, fill = "white") +
+  scale_fill_brewer(palette = "Pastel1") +
   labs(title = "Violin Plot with Box Plot Overlay",
-       y = "Phoruspos results ",
-       x = "ECO 9 region ") +
-  theme_minimal() 
+       y = "Chlorophyll Results",
+       x = "ECO 9 Region") +
+  theme_minimal()+
+  theme(legend.position = "none")
 
-ggplot(data = HNLC_data, aes(x = AG_ECO9, y =NTL_RESULT)) +
-  geom_violin(alpha = 0.5) +  # Add the violin plot layer with transparency
-  geom_boxplot(width = 0.1) +  # Add the box plot layer with reduced width
+ggplot(data = HNLC_data, aes(x = AG_ECO9, y = PTL_RESULT, fill = AG_ECO9)) +
+  geom_violin(alpha = 0.5) +
+  geom_boxplot(width = 0.2, fill = "white") +
+  scale_fill_brewer(palette = "Pastel1") +
   labs(title = "Violin Plot with Box Plot Overlay",
-       y = "Nitrogen results ",
-       x = "ECO 3 region ") +
-  theme_minimal() 
+       y = "Phosphorus Results",
+       x = "ECO 9 Region") +
+  theme_minimal()+
+  theme(legend.position = "none")
+
+ggplot(data = HNLC_data, aes(x = AG_ECO9, y = NTL_RESULT, fill = AG_ECO9)) +
+  geom_violin(alpha = 0.5) +
+  geom_boxplot(width = 0.2, fill = "white") +
+  scale_fill_brewer(palette = "Pastel1") +
+  labs(title = "Violin Plot with Box Plot Overlay",
+       y = "Nitrogen Results",
+       x = "ECO 9 Region") +
+  theme_minimal()+
+  theme(legend.position = "none")
+
+#Just Box plots 
+
+ggplot(data = HNLC_data, aes(x = AG_ECO9, y = CHLA_RESULT, fill = AG_ECO9)) +
+  geom_boxplot(width = 0.2,
+               outlier.size = 0.5,      #smaller dots
+               outlier.alpha = 0.8) + #transparent
+  scale_fill_brewer(palette = "Pastel1") +
+  labs(title = "Chlorophyll Box Plot",
+       y = "Chlorophyll  Results",
+       x = "ECO 9 Region") +
+  theme_minimal()+
+  theme(legend.position = "none")
+
+ggplot(data = HNLC_data, aes(x = AG_ECO9, y = PTL_RESULT, fill = AG_ECO9)) +
+  geom_boxplot(width = 0.2,
+               outlier.size = 0.5,      #smaller dots
+               outlier.alpha = 0.8) + #transparent
+  scale_fill_brewer(palette = "Pastel1") +
+  labs(title = "Phosphorus Box Plot ",
+       y = "Phosphorus Results",
+       x = "ECO 9 Region") +
+  theme_minimal()+
+  theme(legend.position = "none")
+
+ggplot(data = HNLC_data, aes(x = AG_ECO9, y = NTL_RESULT, fill = AG_ECO9)) +
+  geom_boxplot(width = 0.2,
+               outlier.size = 0.5,      #smaller dots
+               outlier.alpha = 0.8) + #transparent
+  scale_fill_brewer(palette = "Pastel1") +
+  labs(title = "Nitrogen Box Plot",
+       y = "Nitrogen Results",
+       x = "ECO 9 Region") +
+  theme_minimal()+
+  theme(legend.position = "none")
+
+#summary table ----
+get_summary <- function(x) {
+  data.frame(
+    Min = min(x, na.rm = TRUE),
+    Q1 = quantile(x, 0.25, na.rm = TRUE),
+    Median = median(x, na.rm = TRUE),
+    Mean = mean(x, na.rm = TRUE),
+    Q3 = quantile(x, 0.75, na.rm = TRUE),
+    Max = max(x, na.rm = TRUE),
+    N = sum(!is.na(x))
+  )
+}
+
+##Chlorphyll ----
+CHLA_summary <- dplyr::bind_rows(
+  "USA" = get_summary(HNLC_data$CHLA_RESULT),
+  
+  "PLNLOW" = get_summary(PLNLOW$CHLA_RESULT),
+  "EHIGH"  = get_summary(EHIGH$CHLA_RESULT),
+  "WMTNS"  = get_summary(WMTNS$CHLA_RESULT),
+  
+  "SPL" = get_summary(SPL$CHLA_RESULT),
+  "TPL" = get_summary(TPL$CHLA_RESULT),
+  "CPL" = get_summary(CPL$CHLA_RESULT),
+  "UMW" = get_summary(UMW$CHLA_RESULT),
+  "SAP" = get_summary(SAP$CHLA_RESULT),
+  "NAP" = get_summary(NAP$CHLA_RESULT),
+  "WMT" = get_summary(WMT$CHLA_RESULT),
+  "NPL" = get_summary(NPL$CHLA_RESULT),
+  "XER" = get_summary(XER$CHLA_RESULT),
+  
+  .id = "Region")
+
+##phosphorus ----
+PTL_summary <- dplyr::bind_rows(
+  "USA" = get_summary(HNLC_data$PTL_RESULT),
+  
+  "PLNLOW" = get_summary(PLNLOW$PTL_RESULT),
+  "EHIGH"  = get_summary(EHIGH$PTL_RESULT),
+  "WMTNS"  = get_summary(WMTNS$PTL_RESULT),
+  
+  "SPL" = get_summary(SPL$PTL_RESULT),
+  "TPL" = get_summary(TPL$PTL_RESULT),
+  "CPL" = get_summary(CPL$PTL_RESULT),
+  "UMW" = get_summary(UMW$PTL_RESULT),
+  "SAP" = get_summary(SAP$PTL_RESULT),
+  "NAP" = get_summary(NAP$PTL_RESULT),
+  "WMT" = get_summary(WMT$PTL_RESULT),
+  "NPL" = get_summary(NPL$PTL_RESULT),
+  "XER" = get_summary(XER$PTL_RESULT),
+  
+  .id = "Region")
+
+##nitrogen ----
+NTL_summary <- dplyr::bind_rows(
+  "USA" = get_summary(HNLC_data$NTL_RESULT),
+  
+  "PLNLOW" = get_summary(PLNLOW$NTL_RESULT),
+  "EHIGH"  = get_summary(EHIGH$NTL_RESULT),
+  "WMTNS"  = get_summary(WMTNS$NTL_RESULT),
+  
+  "SPL" = get_summary(SPL$NTL_RESULT),
+  "TPL" = get_summary(TPL$NTL_RESULT),
+  "CPL" = get_summary(CPL$NTL_RESULT),
+  "UMW" = get_summary(UMW$NTL_RESULT),
+  "SAP" = get_summary(SAP$NTL_RESULT),
+  "NAP" = get_summary(NAP$NTL_RESULT),
+  "WMT" = get_summary(WMT$NTL_RESULT),
+  "NPL" = get_summary(NPL$NTL_RESULT),
+  "XER" = get_summary(XER$NTL_RESULT),
+  
+  .id = "Region")
+
+#create excel sheet of the eco-regions and summary stats 
+wb <- createWorkbook()
+addWorksheet(wb, "CHLA")
+writeData(wb, "CHLA", CHLA_summary)
+addWorksheet(wb, "PTL")
+writeData(wb, "PTL", PTL_summary)
+addWorksheet(wb, "NTL")
+writeData(wb, "NTL", NTL_summary)
+saveWorkbook(wb, "Nutrient_Summaries.xlsx", overwrite = TRUE)
