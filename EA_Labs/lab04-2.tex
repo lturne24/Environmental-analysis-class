@@ -1,0 +1,713 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Lab 04},
+  colorlinks=true,
+  linkcolor={Maroon},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Lab 04}
+\author{}
+\date{\vspace{-2.5em}}
+
+\begin{document}
+\maketitle
+
+\hypertarget{lab-04-raster-data-management-and-analysis}{%
+\section{Lab 04: Raster data management and
+analysis}\label{lab-04-raster-data-management-and-analysis}}
+
+\hypertarget{read-the-instructions-completely-before-starting-the-lab}{%
+\subsubsection{Read the instructions COMPLETELY before starting the
+lab}\label{read-the-instructions-completely-before-starting-the-lab}}
+
+This lab builds directly on the raster analysis concepts we worked
+through in class, including the Week 12 in-class notebook and the
+Wildcard Thursday activity. You should have that code available for
+reference.
+
+\hypertarget{formatting-your-submission}{%
+\subsubsection{Formatting your
+submission}\label{formatting-your-submission}}
+
+This lab must be placed into a public repository on GitHub
+(www.github.com). Before the due date, submit \textbf{on Canvas} a link
+to the repository. I will then download your repositories and run your
+code. The code must be contained in either a .R script or a .Rmd
+markdown document. As I need to run your code, any data you use in the
+lab must be referenced using \textbf{relative path names}. Finally,
+answers to questions I pose in this document must also be in the
+repository at the time you submit your link to Canvas. They can be in a
+separate text file, or if you decide to use an RMarkdown document, you
+can answer them directly in the doc.
+
+\hypertarget{data}{%
+\subsection{Data}\label{data}}
+
+All data for this lab are in the course repository at:
+
+\begin{verbatim}
+../data/wildcard_thursday/erie_raster_ex/
+\end{verbatim}
+
+You will find two subdirectories:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{images/} --- seven weekly composite GeoTIFF rasters of
+  cyanobacteria bloom intensity in Lake Erie (summer--fall 2017)
+\item
+  \texttt{bounds/} --- several shapefiles representing geographic areas
+  of interest within the Lake Erie region
+\end{itemize}
+
+\textbf{Before writing any code, read the metadata file at}
+
+\textbf{\texttt{../data/wildcard\_thursday/erie\_raster\_ex/erie\_README.txt}.}
+
+This is not optional. Understanding your data source, its scaling, and
+its data key is essential for correct analysis.
+
+\hypertarget{introduction}{%
+\subsection{Introduction}\label{introduction}}
+
+Cyanobacteria (blue-green algae) blooms in Lake Erie have become a
+significant environmental and public health concern. These blooms can
+produce toxins that contaminate drinking water and harm aquatic
+ecosystems. The data you will use were produced by NOAA using imagery
+from the European Space Agency's Sentinel-3 satellite. Each raster
+represents the maximum observed bloom intensity during a given week.
+
+The product you will be working with is the \textbf{CIcyano}
+(Cyanobacteria Index, cyano only) product. Values in these rasters are
+stored as \textbf{digital numbers (DN)} and must be transformed to
+meaningful physical units before interpretation. You saw this in class
+--- recall the reverse-scaling formula from the README and from the Week
+12 notebook.
+
+A critical aspect of working with remote sensing data is understanding
+\textbf{sentinel values}: special numeric codes that indicate conditions
+like cloud cover, land pixels, or missing data. These are NOT real
+observations and must be handled carefully before any analysis.
+
+We begin by loading the relevant packages:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(terra)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## terra 1.8.60
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(sf)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Linking to GEOS 3.13.0, GDAL 3.8.5, PROJ 9.5.1; sf_use_s2() is TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(tidyverse)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## -- Attaching core tidyverse packages ------------------------ tidyverse 2.0.0 --
+## v dplyr     1.1.4     v readr     2.1.5
+## v forcats   1.0.0     v stringr   1.5.1
+## v ggplot2   3.5.2     v tibble    3.2.1
+## v lubridate 1.9.3     v tidyr     1.3.1
+## v purrr     1.0.2
+\end{verbatim}
+
+\begin{verbatim}
+## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## x tidyr::extract() masks terra::extract()
+## x dplyr::filter()  masks stats::filter()
+## x dplyr::lag()     masks stats::lag()
+## i Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(tmap)}
+\FunctionTok{library}\NormalTok{(fs)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{task-1-data-management-and-preprocessing}{%
+\subsection{Task 1: Data management and
+preprocessing}\label{task-1-data-management-and-preprocessing}}
+
+\hypertarget{inventory-your-rasters}{%
+\subsubsection{1.1 Inventory your
+rasters}\label{inventory-your-rasters}}
+
+Use \texttt{fs::dir\_ls} with the parameter
+\texttt{regexp\ =\ "\textbackslash{}\textbackslash{}.tif\$"} to get the
+file paths for all raster images in the \texttt{images/} directory.
+Store the result in an object called \texttt{raster\_files}. Print the
+result --- how many files are there?
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# your code here}
+
+\NormalTok{raster\_files }\OtherTok{\textless{}{-}}\NormalTok{ fs}\SpecialCharTok{::}\FunctionTok{dir\_ls}\NormalTok{(}\StringTok{"erie\_raster\_ex/images/"}\NormalTok{, }\AttributeTok{regexp =} \StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{.tif$"}\NormalTok{)}
+
+\CommentTok{\# print file paths}
+\NormalTok{raster\_files}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## erie_raster_ex/images/ts_2017.0802_0808.L4.LE3.CIcyano.MAXIMUM_7day.tif
+## erie_raster_ex/images/ts_2017.0816_0822.L4.LE3.CIcyano.MAXIMUM_7day.tif
+## erie_raster_ex/images/ts_2017.0823_0829.L4.LE3.CIcyano.MAXIMUM_7day.tif
+## erie_raster_ex/images/ts_2017.0920_0926.L4.LE3.CIcyano.MAXIMUM_7day.tif
+## erie_raster_ex/images/ts_2017.0927_1003.L4.LE3.CIcyano.MAXIMUM_7day.tif
+## erie_raster_ex/images/ts_2017.1018_1024.L4.LE3.CIcyano.MAXIMUM_7day.tif
+## erie_raster_ex/images/ts_2017.1025_1031.L4.LE3.CIcyano.MAXIMUM_7day.tif
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# number of files}
+\FunctionTok{length}\NormalTok{(raster\_files)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 7
+\end{verbatim}
+
+\hypertarget{inspect-a-single-raster}{%
+\subsubsection{1.2 Inspect a single
+raster}\label{inspect-a-single-raster}}
+
+Load the first raster in your list using \texttt{terra::rast()}. Examine
+the following properties and record what you find:
+
+\begin{itemize}
+\tightlist
+\item
+  Coordinate reference system: \texttt{terra::crs()}
+\item
+  Spatial extent: \texttt{terra::ext()}
+\item
+  Spatial resolution: \texttt{terra::res()}
+\item
+  Number of layers: \texttt{terra::nlyr()}
+\item
+  Range of cell values (use \texttt{terra::global()} with \texttt{"min"}
+  and \texttt{"max"})
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# your code here}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{write-a-preprocessing-function-clean_cicyano}{%
+\subsubsection{\texorpdfstring{1.3 Write a preprocessing function:
+\texttt{clean\_cicyano()}}{1.3 Write a preprocessing function: clean\_cicyano()}}\label{write-a-preprocessing-function-clean_cicyano}}
+
+Looking at the data key in the README, you will notice that values of 0
+and 250 and above have special meanings --- they are \textbf{not} valid
+bloom observations. Before doing any analysis, these sentinel values
+must be replaced with \texttt{NA}.
+
+Write a function called \texttt{clean\_cicyano(r)} that:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Takes a SpatRaster \texttt{r} as input
+\item
+  Builds a reclassification matrix that maps \textbf{0} and \textbf{all
+  values \textgreater= 250} to \texttt{NA}, and leaves values 1--249
+  unchanged
+\item
+  Applies the reclassification using \texttt{terra::classify()} with the
+  argument \texttt{others\ =\ NA} (this is a useful argument --- look it
+  up)
+\item
+  Returns the cleaned raster
+\end{enumerate}
+
+\emph{Hint: Your reclassification matrix should handle the no-detection
+case (0) and all sentinel codes (250 through 255). Review how
+\texttt{terra::classify()} uses a three-column matrix to specify
+\texttt{{[}from,\ to,\ becomes{]}} intervals.}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# your code here}
+\end{Highlighting}
+\end{Shaded}
+
+Test your function on the first raster. Verify it worked by comparing
+the global min/max of the raw raster vs.~the cleaned raster.
+
+\hypertarget{write-a-transform-function-dn_to_ci}{%
+\subsubsection{\texorpdfstring{1.4 Write a transform function:
+\texttt{dn\_to\_ci()}}{1.4 Write a transform function: dn\_to\_ci()}}\label{write-a-transform-function-dn_to_ci}}
+
+The DN values in these rasters are scaled according to the formula in
+the README. To convert back to physical CI units, use the
+reverse-scaling formula:
+
+\[CI = 10^{\left(\frac{3.0}{250.0} \times DN - 4.2\right)}\]
+
+Write a function called \texttt{dn\_to\_ci(r)} that takes a cleaned
+SpatRaster and returns a new raster with values transformed to CI units.
+You can apply a function to a raster using standard arithmetic
+operations or by passing a function to the raster.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# your code here}
+\end{Highlighting}
+\end{Shaded}
+
+Test your function. What is the range of CI values in the transformed
+raster? Do they make physical sense given the data key?
+
+\hypertarget{questions-for-task-1}{%
+\subsubsection{Questions for Task 1:}\label{questions-for-task-1}}
+
+\textbf{Q1.1} What does the CRS of these rasters tell you about how
+distances and areas are measured? Would you need to reproject before
+calculating bloom area in square kilometers?
+
+\textbf{Q1.2} Why is it important to remove sentinel values
+\emph{before} applying the DN-to-CI transform --- rather than after?
+What would happen to a land pixel (value = 252) if you transformed it
+without cleaning first?
+
+\textbf{Q1.3} The \texttt{others\ =\ NA} argument in
+\texttt{terra::classify()} is useful here. In your own words, what does
+it do?
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{task-2-spatial-subsetting-crop-and-mask}{%
+\subsection{Task 2: Spatial subsetting --- crop and
+mask}\label{task-2-spatial-subsetting-crop-and-mask}}
+
+\hypertarget{load-and-align-an-area-of-interest}{%
+\subsubsection{2.1 Load and align an area of
+interest}\label{load-and-align-an-area-of-interest}}
+
+Load the \texttt{bb\_erie\_sandusky} shapefile from the \texttt{bounds/}
+directory using \texttt{sf::read\_sf()}. Check its CRS. If it does not
+match the raster CRS, reproject it using \texttt{sf::st\_transform()}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# your code here}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{crop-and-mask}{%
+\subsubsection{2.2 Crop and mask}\label{crop-and-mask}}
+
+Using the \textbf{August 16--22, 2017} raster
+(\texttt{ts\_2017.0816\_0822}):
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Apply \texttt{clean\_cicyano()} and \texttt{dn\_to\_ci()} to get a
+  clean, transformed raster
+\item
+  Use \texttt{terra::crop()} to clip the raster extent to the Sandusky
+  Bay boundary
+\item
+  Use \texttt{terra::mask()} to set pixels \emph{outside} the boundary
+  to \texttt{NA}
+\end{enumerate}
+
+Store your final result as \texttt{sandusky\_0816}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# your code here}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{compare-full-vs.-masked}{%
+\subsubsection{2.3 Compare full
+vs.~masked}\label{compare-full-vs.-masked}}
+
+Using \texttt{terra::global()}, calculate and compare the \textbf{mean}
+CI value for:
+
+\begin{itemize}
+\tightlist
+\item
+  The full Lake Erie cleaned/transformed raster
+\item
+  The Sandusky Bay-masked raster (\texttt{sandusky\_0816})
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# your code here}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{map-it}{%
+\subsubsection{2.4 Map it}\label{map-it}}
+
+Create a \texttt{tmap} map of \texttt{sandusky\_0816}. Your map should
+include:
+
+\begin{itemize}
+\tightlist
+\item
+  A meaningful title
+\item
+  A legend with appropriate labels
+\item
+  A scale bar
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# your code here}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{questions-for-task-2}{%
+\subsubsection{Questions for Task 2:}\label{questions-for-task-2}}
+
+\textbf{Q2.1} In your own words, what is the difference between
+\texttt{terra::crop()} and \texttt{terra::mask()}? Why did we use both
+here instead of just one?
+
+\textbf{Q2.2} The mean CI value for Sandusky Bay is likely different
+from the full lake mean. What could explain this? Does this necessarily
+mean Sandusky Bay has more or less cyanobacteria than average?
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{task-3-multi-temporal-comparison}{%
+\subsection{Task 3: Multi-temporal
+comparison}\label{task-3-multi-temporal-comparison}}
+
+\hypertarget{load-and-stack-multiple-rasters}{%
+\subsubsection{3.1 Load and stack multiple
+rasters}\label{load-and-stack-multiple-rasters}}
+
+Load and clean \textbf{at least four} of the seven rasters (choose dates
+that span a meaningful time range). Apply \texttt{clean\_cicyano()} and
+\texttt{dn\_to\_ci()} to each. Then combine them into a single
+multi-layer SpatRaster using \texttt{c()}.
+
+\emph{Tip: using \texttt{purrr::map()} over your \texttt{raster\_files}
+vector, combined with your preprocessing functions, can make this more
+efficient.}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# your code here}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{temporal-summary}{%
+\subsubsection{3.2 Temporal summary}\label{temporal-summary}}
+
+Use \texttt{terra::global()} on your multi-layer raster to calculate the
+\textbf{mean} CI value per layer (use \texttt{na.rm\ =\ TRUE}). This
+will give you one mean value per date.
+
+Organize the results into a data frame with at minimum two columns:
+\texttt{date} and \texttt{mean\_ci}. You will need to extract the date
+from each filename. Use \texttt{basename()} and/or
+\texttt{stringr::str\_extract()} to parse the date string from the file
+path --- the date range is the part of the filename that looks like
+\texttt{0802\_0808}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# your code here}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{plot-the-time-series}{%
+\subsubsection{3.3 Plot the time series}\label{plot-the-time-series}}
+
+Using \texttt{ggplot2}, create a line or point plot showing mean CI
+values over time. Label your axes clearly. Which date in your dataset
+shows the highest mean bloom intensity?
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# your code here}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{binary-bloom-comparison}{%
+\subsubsection{3.4 Binary bloom
+comparison}\label{binary-bloom-comparison}}
+
+Choose any \textbf{two dates} from your dataset. For each, create a
+binary raster where cells with valid CI values are coded as \texttt{1}
+and all other cells (NA) as \texttt{0}. You will need to think about how
+to do this using \texttt{terra::classify()} or logical raster
+operations.
+
+Use these binary rasters to create two new rasters:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Persistent bloom:} cells where blooms were present on
+  \emph{both} dates
+\item
+  \textbf{New bloom:} cells where blooms were present on the
+  \emph{later} date but NOT the earlier date
+\end{itemize}
+
+Map both results.
+
+\emph{This requires careful logical thinking before writing code. Plan
+your approach in pseudocode first.}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# your code here}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{questions-for-task-3}{%
+\subsubsection{Questions for Task 3:}\label{questions-for-task-3}}
+
+\textbf{Q3.1} What are the limitations of using \textbf{mean CI value}
+as a measure of bloom severity across the whole lake? What would be a
+more robust alternative metric?
+
+\textbf{Q3.2} Stacking rasters with \texttt{c()} in terra creates a
+multi-layer SpatRaster. What requirement must all rasters meet in order
+to be stacked this way? (Think: extent, resolution, CRS.)
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{task-4-zonal-analysis-with-areas-of-interest}{%
+\subsection{Task 4: Zonal analysis with areas of
+interest}\label{task-4-zonal-analysis-with-areas-of-interest}}
+
+\hypertarget{load-all-boundary-files}{%
+\subsubsection{4.1 --- Load all boundary
+files}\label{load-all-boundary-files}}
+
+Use \texttt{list.files()} to get all \texttt{.shp} files from the
+\texttt{bounds/} directory. Load each with \texttt{sf::read\_sf()}, then
+combine them into a single sf object using \texttt{dplyr::bind\_rows()}.
+Make sure each polygon has an identifier --- if not, add a column with
+the filename or AOI name.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# your code here}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{extract-by-area}{%
+\subsubsection{4.2 Extract by area}\label{extract-by-area}}
+
+Using the date you identified in Task 3.3 as having the highest mean
+bloom intensity, extract CI values for each area of interest using
+\texttt{terra::extract()}. Calculate the \textbf{mean} and
+\textbf{maximum} CI per AOI.
+
+\emph{Tip: \texttt{terra::extract()} returns a data frame. The
+\texttt{ID} column links rows to the AOI that was used for extraction.
+You can use \texttt{group\_by()} and \texttt{summarize()} to aggregate.}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# your code here}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{summary-table}{%
+\subsubsection{4.3 Summary table}\label{summary-table}}
+
+Present your results as a clean summary table. Which AOI had the highest
+mean CI value on that date? Which had the highest maximum?
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# your code here}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{map-with-aoi-overlays}{%
+\subsubsection{4.4 Map with AOI overlays}\label{map-with-aoi-overlays}}
+
+Create a \texttt{tmap} map showing the CI raster for your chosen date
+with the AOI boundaries overlaid. Use \texttt{tm\_borders()} for the
+boundaries and label them if possible.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# your code here}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{questions-for-task-4}{%
+\subsubsection{Questions for Task 4:}\label{questions-for-task-4}}
+
+\textbf{Q4.1} You may have gotten \texttt{NA} values in your
+\texttt{terra::extract()} results for some AOIs. What could cause this?
+Name at least two reasons.
+
+\textbf{Q4.2} Looking at the spatial distribution of your AOIs on the
+map, which areas do you expect to be most prone to severe blooms, and
+why? (Consider geography, hydrology, land use in the Lake Erie
+watershed.)
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{questions}{%
+\subsection{Questions}\label{questions}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Throughout this lab you have been working with \textbf{raster} data.
+  In what ways was the analysis workflow different from working with
+  vector data (like you did in Labs 1--3)? What concepts translated
+  directly, and what was fundamentally different?
+\item
+  Cyanobacteria blooms are affected by temperature, nutrient runoff, and
+  lake circulation. Based on the temporal patterns you observed in Task
+  3, does the timing of peak bloom match what you would expect
+  ecologically? Explain your reasoning (I know you're not an expert on
+  blooms - just demonstrate thinking).
+\item
+  We used \texttt{terra::extract()} in Task 4 to perform a zonal
+  summary. How does this relate conceptually to the \textbf{zonal
+  operations} category of map algebra discussed in class?
+\end{enumerate}
+
+\end{document}

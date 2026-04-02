@@ -1151,3 +1151,133 @@ writeData(wb, "PTL", PTL_summary)
 addWorksheet(wb, "NTL")
 writeData(wb, "NTL", NTL_summary)
 saveWorkbook(wb, "Nutrient_Summaries.xlsx", overwrite = TRUE)
+
+#Overlap between sites ----
+df1 <- HNLChlorophyll_sites_list %>%
+  mutate(source = "HNL")
+
+df2 <- byECO3_HNLChlorophyll_sites %>%
+  mutate(source = "ECO3")
+
+df3 <- byECO9_HNLChlorophyll_sites %>%
+  mutate(source = "ECO9")
+
+all_sites <- bind_rows(df1, df2, df3)
+
+site_overlap <- all_sites %>%
+  group_by(SITE_ID) %>%
+  summarise(
+    sources = paste(unique(source), collapse = ", "),
+    n_sources = n_distinct(source),
+    overlap_type = case_when(
+      n_sources == 3 ~ "All three",
+      n_sources == 2 ~ "Two datasets",
+      n_sources == 1 ~ "Unique",
+      TRUE ~ "Other"
+    ), .groups = "drop")
+
+#all data tossed into one sheet and what dataframe pulled from 
+final_data <- all_sites %>% left_join(site_overlap, by = "SITE_ID")
+
+site_overlap %>% count(overlap_type)
+
+site_overlap <- all_sites %>%
+  group_by(SITE_ID) %>%
+  summarise(
+    sources = paste(sort(unique(source)), collapse = " + "),
+    n_sources = n_distinct(source),
+    .groups = "drop"
+  )
+
+
+final_unique <- final_data %>%
+  group_by(SITE_ID) %>%
+  summarise(
+    LAT_DD83 = first(LAT_DD83),
+    LON_DD83 = first(LON_DD83),
+    PTL_RESULT = mean(PTL_RESULT, na.rm = TRUE),
+    NTL_RESULT = mean(NTL_RESULT, na.rm = TRUE),
+    CHLA_RESULT = mean(CHLA_RESULT, na.rm = TRUE),
+    nutrient_group = first(nutrient_group),
+    sources = first(sources),
+    n_sources = first(n_sources),
+    overlap_type = first(overlap_type),
+    .groups = "drop"
+  )
+
+#mapping by overlap ----
+final_unique <- final_unique %>%
+  mutate(overlap_label = case_when(
+    n_sources == 1 ~ "Unique",
+    n_sources == 2 ~ "Two datasets",
+    n_sources == 3 ~ "All three"
+  ))
+
+ggplot() +
+  geom_polygon(data = us_states,
+               aes(x = long, y = lat, group = group),
+               fill = "gray95",
+               color = "black",
+               linewidth = 0.2) +
+  geom_point(data = final_unique,
+             aes(x = LON_DD83,
+                 y = LAT_DD83,
+                 color = nutrient_group,
+                 shape = factor(overlap_label)),
+             size = 1.5,alpha = 0.8) +
+  coord_fixed(1.3) +
+  labs(
+    title = "HNLC Chlorophyll Sites: Nutrient Groups and Dataset Overlap",
+    color = "Nutrient Group",
+    shape = "Overlap (# of datasets)"
+  ) + theme_minimal() + theme(legend.position = "right")
+
+
+#working on showing how many sites its in 
+final_unique <- final_unique %>%
+  mutate(source_combo = case_when(
+    sources == "HNL" ~ "HNL only",
+    sources == "ECO3" ~ "ECO3 only",
+    sources == "ECO9" ~ "ECO9 only",
+    sources %in% c("HNL, ECO3", "ECO3, HNL") ~ "HNL + ECO3",
+    sources %in% c("HNL, ECO9", "ECO9, HNL") ~ "HNL + ECO9",
+    sources %in% c("ECO3, ECO9", "ECO9, ECO3") ~ "ECO3 + ECO9",
+    sources %in% c("HNL, ECO3, ECO9", "HNL, ECO9, ECO3", 
+                   "ECO3, HNL, ECO9", "ECO3, ECO9, HNL",
+                   "ECO9, HNL, ECO3", "ECO9, ECO3, HNL") ~ "All three",
+    TRUE ~ "Other"
+  ))
+
+ggplot() +
+  geom_polygon(data = us_states,
+               aes(x = long, y = lat, group = group),
+               fill = "gray95",
+               color = "black",
+               linewidth = 0.2) +
+  geom_point(data = final_unique,
+             aes(x = LON_DD83,
+                 y = LAT_DD83,
+                 color = nutrient_group,
+                 shape = source_combo),
+             size = 1.5,
+             alpha = 0.8) +
+  
+  coord_fixed(1.3) +
+  labs(
+    title = "HNLC Chlorophyll Sites: Nutrient Groups and Dataset Overlap",
+    color = "Nutrient Group",
+    shape = "Dataset Source Combination"
+  ) +
+  scale_shape_manual(values = c(
+    "HNL only" = 16,
+    "ECO3 only" = 17,
+    "ECO9 only" = 15,
+    "HNL + ECO3" = 3,
+    "HNL + ECO9" = 7,
+    "ECO3 + ECO9" = 8,
+    "All three" = 18
+  )) +
+  theme_minimal() +
+  theme(legend.position = "right")
+
+
