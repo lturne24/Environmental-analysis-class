@@ -61,6 +61,12 @@ combined_data <- combined_data %>% left_join(chlorophyll_clean,
 #THE BIG DADDY OF DATA SETS ----
 HNLC_data <- combined_data
 
+#removes negative values (not possible)
+HNLC_data <- HNLC_data %>%
+  mutate( PTL_RESULT = ifelse(!is.na(PTL_RESULT) & PTL_RESULT < 0, 0, PTL_RESULT),
+    PTL_DISS_RESULT = ifelse(!is.na(PTL_DISS_RESULT) & PTL_DISS_RESULT < 0, 0, PTL_DISS_RESULT))
+
+
 #just mapping the sites (all of them) ----
 #chlorophyll map (all Sites)
 ggplot() +
@@ -1085,11 +1091,9 @@ get_summary <- function(x) {
 ##Chlorphyll ----
 CHLA_summary <- dplyr::bind_rows(
   "USA" = get_summary(HNLC_data$CHLA_RESULT),
-  
   "PLNLOW" = get_summary(PLNLOW$CHLA_RESULT),
   "EHIGH"  = get_summary(EHIGH$CHLA_RESULT),
   "WMTNS"  = get_summary(WMTNS$CHLA_RESULT),
-  
   "SPL" = get_summary(SPL$CHLA_RESULT),
   "TPL" = get_summary(TPL$CHLA_RESULT),
   "CPL" = get_summary(CPL$CHLA_RESULT),
@@ -1099,17 +1103,14 @@ CHLA_summary <- dplyr::bind_rows(
   "WMT" = get_summary(WMT$CHLA_RESULT),
   "NPL" = get_summary(NPL$CHLA_RESULT),
   "XER" = get_summary(XER$CHLA_RESULT),
-  
   .id = "Region")
 
 ##phosphorus ----
 PTL_summary <- dplyr::bind_rows(
   "USA" = get_summary(HNLC_data$PTL_RESULT),
-  
   "PLNLOW" = get_summary(PLNLOW$PTL_RESULT),
   "EHIGH"  = get_summary(EHIGH$PTL_RESULT),
   "WMTNS"  = get_summary(WMTNS$PTL_RESULT),
-  
   "SPL" = get_summary(SPL$PTL_RESULT),
   "TPL" = get_summary(TPL$PTL_RESULT),
   "CPL" = get_summary(CPL$PTL_RESULT),
@@ -1119,17 +1120,14 @@ PTL_summary <- dplyr::bind_rows(
   "WMT" = get_summary(WMT$PTL_RESULT),
   "NPL" = get_summary(NPL$PTL_RESULT),
   "XER" = get_summary(XER$PTL_RESULT),
-  
   .id = "Region")
 
 ##nitrogen ----
 NTL_summary <- dplyr::bind_rows(
   "USA" = get_summary(HNLC_data$NTL_RESULT),
-  
   "PLNLOW" = get_summary(PLNLOW$NTL_RESULT),
   "EHIGH"  = get_summary(EHIGH$NTL_RESULT),
   "WMTNS"  = get_summary(WMTNS$NTL_RESULT),
-  
   "SPL" = get_summary(SPL$NTL_RESULT),
   "TPL" = get_summary(TPL$NTL_RESULT),
   "CPL" = get_summary(CPL$NTL_RESULT),
@@ -1139,7 +1137,6 @@ NTL_summary <- dplyr::bind_rows(
   "WMT" = get_summary(WMT$NTL_RESULT),
   "NPL" = get_summary(NPL$NTL_RESULT),
   "XER" = get_summary(XER$NTL_RESULT),
-  
   .id = "Region")
 
 #create excel sheet of the eco-regions and summary stats 
@@ -1178,9 +1175,7 @@ site_overlap <- all_sites %>%
 
 #all data tossed into one sheet and what dataframe pulled from 
 final_data <- all_sites %>% left_join(site_overlap, by = "SITE_ID")
-
 site_overlap %>% count(overlap_type)
-
 site_overlap <- all_sites %>%
   group_by(SITE_ID) %>%
   summarise(
@@ -1188,7 +1183,6 @@ site_overlap <- all_sites %>%
     n_sources = n_distinct(source),
     .groups = "drop"
   )
-
 
 final_unique <- final_data %>%
   group_by(SITE_ID) %>%
@@ -1248,6 +1242,9 @@ final_unique <- final_unique %>%
     TRUE ~ "Other"
   ))
 
+
+
+#plot with each eco location 
 ggplot() +
   geom_polygon(data = us_states,
                aes(x = long, y = lat, group = group),
@@ -1260,14 +1257,11 @@ ggplot() +
                  color = nutrient_group,
                  shape = source_combo),
              size = 1.5,
-             alpha = 0.8) +
-  
+             alpha = 0.95) +
   coord_fixed(1.3) +
-  labs(
-    title = "HNLC Chlorophyll Sites: Nutrient Groups and Dataset Overlap",
+  labs(title = "HNLC Chlorophyll Sites: Nutrient Groups and Dataset Overlap",
     color = "Nutrient Group",
-    shape = "Dataset Source Combination"
-  ) +
+    shape = "Dataset Source Combination") +
   scale_shape_manual(values = c(
     "HNL only" = 16,
     "ECO3 only" = 17,
@@ -1275,8 +1269,7 @@ ggplot() +
     "HNL + ECO3" = 3,
     "HNL + ECO9" = 7,
     "ECO3 + ECO9" = 8,
-    "All three" = 18
-  )) +
+    "All three" = 18)) +
   theme_minimal() +
   theme(legend.position = "right")
 
