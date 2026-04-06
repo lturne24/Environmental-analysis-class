@@ -320,8 +320,62 @@ the following properties and record what you find:
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# your code here}
+\CommentTok{\# load first raster}
+\NormalTok{r1 }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{rast}\NormalTok{(raster\_files[}\DecValTok{1}\NormalTok{])}
+
+\CommentTok{\# Coords}
+\NormalTok{terra}\SpecialCharTok{::}\FunctionTok{crs}\NormalTok{(r1)}
 \end{Highlighting}
 \end{Shaded}
+
+\begin{verbatim}
+## [1] "PROJCRS[\"WGS 84 / UTM zone 17N\",\n    BASEGEOGCRS[\"WGS 84\",\n        DATUM[\"World Geodetic System 1984\",\n            ELLIPSOID[\"WGS 84\",6378137,298.257223563,\n                LENGTHUNIT[\"metre\",1]]],\n        PRIMEM[\"Greenwich\",0,\n            ANGLEUNIT[\"degree\",0.0174532925199433]],\n        ID[\"EPSG\",4326]],\n    CONVERSION[\"Transverse Mercator\",\n        METHOD[\"Transverse Mercator\",\n            ID[\"EPSG\",9807]],\n        PARAMETER[\"Latitude of natural origin\",0,\n            ANGLEUNIT[\"degree\",0.0174532925199433],\n            ID[\"EPSG\",8801]],\n        PARAMETER[\"Longitude of natural origin\",-81,\n            ANGLEUNIT[\"degree\",0.0174532925199433],\n            ID[\"EPSG\",8802]],\n        PARAMETER[\"Scale factor at natural origin\",0.9996,\n            SCALEUNIT[\"unity\",1],\n            ID[\"EPSG\",8805]],\n        PARAMETER[\"False easting\",500000,\n            LENGTHUNIT[\"metre\",1],\n            ID[\"EPSG\",8806]],\n        PARAMETER[\"False northing\",0,\n            LENGTHUNIT[\"metre\",1],\n            ID[\"EPSG\",8807]]],\n    CS[Cartesian,2],\n        AXIS[\"easting\",east,\n            ORDER[1],\n            LENGTHUNIT[\"metre\",1]],\n        AXIS[\"northing\",north,\n            ORDER[2],\n            LENGTHUNIT[\"metre\",1]],\n    ID[\"EPSG\",32617]]"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# extent}
+\NormalTok{terra}\SpecialCharTok{::}\FunctionTok{ext}\NormalTok{(r1)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## SpatExtent : 281282.934996, 694382.934996, 4572608.997997, 4764308.997997 (xmin, xmax, ymin, ymax)
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# resolution}
+\NormalTok{terra}\SpecialCharTok{::}\FunctionTok{res}\NormalTok{(r1)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 300 300
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# layers}
+\NormalTok{terra}\SpecialCharTok{::}\FunctionTok{nlyr}\NormalTok{(r1)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 1
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# min and max}
+\NormalTok{terra}\SpecialCharTok{::}\FunctionTok{global}\NormalTok{(r1, }\FunctionTok{c}\NormalTok{(}\StringTok{"min"}\NormalTok{, }\StringTok{"max"}\NormalTok{), }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##                                               min max
+## ts_2017.0802_0808.L4.LE3.CIcyano.MAXIMUM_7day   1 252
+\end{verbatim}
 
 \hypertarget{write-a-preprocessing-function-clean_cicyano}{%
 \subsubsection{\texorpdfstring{1.3 Write a preprocessing function:
@@ -359,8 +413,38 @@ case (0) and all sentinel codes (250 through 255). Review how
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# your code here}
+\NormalTok{clean\_cicyano }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(r) \{}
+\NormalTok{  rcl }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{c}\NormalTok{(}
+    \DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, }\ConstantTok{NA}\NormalTok{,}
+    \DecValTok{249}\NormalTok{, }\DecValTok{255}\NormalTok{, }\ConstantTok{NA}
+\NormalTok{  ), }\AttributeTok{ncol =} \DecValTok{3}\NormalTok{, }\AttributeTok{byrow =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{  r\_clean }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{classify}\NormalTok{(r, rcl)}
+  \FunctionTok{return}\NormalTok{(r\_clean)}
+\NormalTok{\}}
+
+
+\CommentTok{\# test}
+\NormalTok{r1\_clean }\OtherTok{\textless{}{-}} \FunctionTok{clean\_cicyano}\NormalTok{(r1)}
+
+\NormalTok{terra}\SpecialCharTok{::}\FunctionTok{global}\NormalTok{(r1, }\FunctionTok{c}\NormalTok{(}\StringTok{"min"}\NormalTok{, }\StringTok{"max"}\NormalTok{), }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
+
+\begin{verbatim}
+##                                               min max
+## ts_2017.0802_0808.L4.LE3.CIcyano.MAXIMUM_7day   1 252
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{terra}\SpecialCharTok{::}\FunctionTok{global}\NormalTok{(r1\_clean, }\FunctionTok{c}\NormalTok{(}\StringTok{"min"}\NormalTok{, }\StringTok{"max"}\NormalTok{), }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##                                               min max
+## ts_2017.0802_0808.L4.LE3.CIcyano.MAXIMUM_7day   1 249
+\end{verbatim}
 
 Test your function on the first raster. Verify it worked by comparing
 the global min/max of the raw raster vs.~the cleaned raster.
@@ -383,8 +467,23 @@ operations or by passing a function to the raster.
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# your code here}
+
+\NormalTok{dn\_to\_ci }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(r) \{}
+\NormalTok{  ci }\OtherTok{\textless{}{-}} \DecValTok{10}\SpecialCharTok{\^{}}\NormalTok{((}\FloatTok{3.0} \SpecialCharTok{/} \FloatTok{250.0}\NormalTok{) }\SpecialCharTok{*}\NormalTok{ r }\SpecialCharTok{{-}} \FloatTok{4.2}\NormalTok{)}
+  \FunctionTok{return}\NormalTok{(ci)}
+\NormalTok{\}}
+
+\CommentTok{\# test}
+\NormalTok{r1\_ci }\OtherTok{\textless{}{-}} \FunctionTok{dn\_to\_ci}\NormalTok{(r1\_clean)}
+
+\NormalTok{terra}\SpecialCharTok{::}\FunctionTok{global}\NormalTok{(r1\_ci, }\FunctionTok{c}\NormalTok{(}\StringTok{"min"}\NormalTok{, }\StringTok{"max"}\NormalTok{), }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
+
+\begin{verbatim}
+##                                                        min       max
+## ts_2017.0802_0808.L4.LE3.CIcyano.MAXIMUM_7day 6.486344e-05 0.0613762
+\end{verbatim}
 
 Test your function. What is the range of CI values in the transformed
 raster? Do they make physical sense given the data key?

@@ -46,7 +46,7 @@ ggplot(data_subset, aes(x = pct_f75_79)) +
   theme_minimal() + labs(title = "Percent Females 75–79")
 
 #task 4 chlorpleth map ----
-map_mode("plot")
+tmap_mode("plot")
 tm_shape(data_subset) +
   tm_polygons( "pct_f75_79", style = "quantile",
     palette = "Greens", title = "% Female 75–79") +

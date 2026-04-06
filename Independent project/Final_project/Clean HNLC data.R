@@ -1181,8 +1181,7 @@ site_overlap <- all_sites %>%
   summarise(
     sources = paste(sort(unique(source)), collapse = " + "),
     n_sources = n_distinct(source),
-    .groups = "drop"
-  )
+    .groups = "drop")
 
 final_unique <- final_data %>%
   group_by(SITE_ID) %>%
@@ -1196,16 +1195,14 @@ final_unique <- final_data %>%
     sources = first(sources),
     n_sources = first(n_sources),
     overlap_type = first(overlap_type),
-    .groups = "drop"
-  )
+    .groups = "drop")
 
 #mapping by overlap ----
 final_unique <- final_unique %>%
   mutate(overlap_label = case_when(
     n_sources == 1 ~ "Unique",
     n_sources == 2 ~ "Two datasets",
-    n_sources == 3 ~ "All three"
-  ))
+    n_sources == 3 ~ "All three"))
 
 ggplot() +
   geom_polygon(data = us_states,
@@ -1239,8 +1236,7 @@ final_unique <- final_unique %>%
     sources %in% c("HNL, ECO3, ECO9", "HNL, ECO9, ECO3", 
                    "ECO3, HNL, ECO9", "ECO3, ECO9, HNL",
                    "ECO9, HNL, ECO3", "ECO9, ECO3, HNL") ~ "All three",
-    TRUE ~ "Other"
-  ))
+    TRUE ~ "Other"))
 
 
 
