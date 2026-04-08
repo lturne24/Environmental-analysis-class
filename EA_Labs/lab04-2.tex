@@ -269,7 +269,6 @@ result --- how many files are there?
 
 \NormalTok{raster\_files }\OtherTok{\textless{}{-}}\NormalTok{ fs}\SpecialCharTok{::}\FunctionTok{dir\_ls}\NormalTok{(}\StringTok{"erie\_raster\_ex/images/"}\NormalTok{, }\AttributeTok{regexp =} \StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{.tif$"}\NormalTok{)}
 
-\CommentTok{\# print file paths}
 \NormalTok{raster\_files}
 \end{Highlighting}
 \end{Shaded}
@@ -286,7 +285,6 @@ result --- how many files are there?
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\# number of files}
 \FunctionTok{length}\NormalTok{(raster\_files)}
 \end{Highlighting}
 \end{Shaded}
@@ -410,6 +408,35 @@ case (0) and all sentinel codes (250 through 255). Review how
 \texttt{terra::classify()} uses a three-column matrix to specify
 \texttt{{[}from,\ to,\ becomes{]}} intervals.}
 
+Looking at the data key in the README, you will notice that values of 0
+and 250 and above have special meanings --- they are \textbf{not} valid
+bloom observations. Before doing any analysis, these sentinel values
+must be replaced with \texttt{NA}.
+
+Write a function called \texttt{clean\_cicyano(r)} that:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Takes a SpatRaster \texttt{r} as input
+\item
+  Builds a reclassification matrix that maps \textbf{0} and \textbf{all
+  values \textgreater= 250} to \texttt{NA}, and leaves values 1--249
+  unchanged
+\item
+  Applies the reclassification using \texttt{terra::classify()}
+\item
+  Returns the cleaned raster
+\end{enumerate}
+
+\emph{Hint: Your reclassification matrix should handle the no-detection
+case (0) and all sentinel codes (250 through 255). Review how
+\texttt{terra::classify()} uses a three-column matrix to specify
+\texttt{{[}from,\ to,\ becomes{]}} intervals. You may find
+\texttt{right\ =\ NA} useful here so boundary values like 0 and 250 are
+included in the intervals.}
+
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# your code here}
@@ -419,11 +446,10 @@ case (0) and all sentinel codes (250 through 255). Review how
     \DecValTok{249}\NormalTok{, }\DecValTok{255}\NormalTok{, }\ConstantTok{NA}
 \NormalTok{  ), }\AttributeTok{ncol =} \DecValTok{3}\NormalTok{, }\AttributeTok{byrow =} \ConstantTok{TRUE}\NormalTok{)}
 \NormalTok{  r\_clean }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{classify}\NormalTok{(r, rcl)}
-  \FunctionTok{return}\NormalTok{(r\_clean)}
-\NormalTok{\}}
+  \FunctionTok{return}\NormalTok{(r\_clean)\}}
 
 
-\CommentTok{\# test}
+\CommentTok{\# plz work}
 \NormalTok{r1\_clean }\OtherTok{\textless{}{-}} \FunctionTok{clean\_cicyano}\NormalTok{(r1)}
 
 \NormalTok{terra}\SpecialCharTok{::}\FunctionTok{global}\NormalTok{(r1, }\FunctionTok{c}\NormalTok{(}\StringTok{"min"}\NormalTok{, }\StringTok{"max"}\NormalTok{), }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
@@ -470,10 +496,9 @@ operations or by passing a function to the raster.
 
 \NormalTok{dn\_to\_ci }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(r) \{}
 \NormalTok{  ci }\OtherTok{\textless{}{-}} \DecValTok{10}\SpecialCharTok{\^{}}\NormalTok{((}\FloatTok{3.0} \SpecialCharTok{/} \FloatTok{250.0}\NormalTok{) }\SpecialCharTok{*}\NormalTok{ r }\SpecialCharTok{{-}} \FloatTok{4.2}\NormalTok{)}
-  \FunctionTok{return}\NormalTok{(ci)}
-\NormalTok{\}}
+  \FunctionTok{return}\NormalTok{(ci)\}}
 
-\CommentTok{\# test}
+\CommentTok{\#plzzzzz work }
 \NormalTok{r1\_ci }\OtherTok{\textless{}{-}} \FunctionTok{dn\_to\_ci}\NormalTok{(r1\_clean)}
 
 \NormalTok{terra}\SpecialCharTok{::}\FunctionTok{global}\NormalTok{(r1\_ci, }\FunctionTok{c}\NormalTok{(}\StringTok{"min"}\NormalTok{, }\StringTok{"max"}\NormalTok{), }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
@@ -493,18 +518,21 @@ raster? Do they make physical sense given the data key?
 
 \textbf{Q1.1} What does the CRS of these rasters tell you about how
 distances and areas are measured? Would you need to reproject before
-calculating bloom area in square kilometers?
+calculating bloom area in square kilometers? it tells what type of
+coorindate systesm used, you would not need to reproject because they
+our in UTM, but if it was in latitude/ longitude format you would
 
 \textbf{Q1.2} Why is it important to remove sentinel values
 \emph{before} applying the DN-to-CI transform --- rather than after?
 What would happen to a land pixel (value = 252) if you transformed it
-without cleaning first?
+without cleaning first? because it is not real data and it would cause a
+large CI meaning it would look like a large bloom where there is none
 
 \textbf{Q1.3} The \texttt{others\ =\ NA} argument in
 \texttt{terra::classify()} is useful here. In your own words, what does
-it do?
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+it do? if they our not specfically mentions in the classify matrix it
+become NA, it useful because you can find specfic arguments and weed out
+the unneeded values ---
 
 \hypertarget{task-2-spatial-subsetting-crop-and-mask}{%
 \subsection{Task 2: Spatial subsetting --- crop and
@@ -521,6 +549,66 @@ match the raster CRS, reproject it using \texttt{sf::st\_transform()}.
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# your code here}
+\NormalTok{aoi }\OtherTok{\textless{}{-}}\NormalTok{ sf}\SpecialCharTok{::}\FunctionTok{read\_sf}\NormalTok{(}\StringTok{"erie\_raster\_ex/bounds/bb\_erie\_sandusky.shp"}\NormalTok{)}
+
+\CommentTok{\# check Coords}
+\FunctionTok{st\_crs}\NormalTok{(aoi)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Coordinate Reference System:
+##   User input: WGS 84 / UTM zone 17N 
+##   wkt:
+## PROJCRS["WGS 84 / UTM zone 17N",
+##     BASEGEOGCRS["WGS 84",
+##         DATUM["World Geodetic System 1984",
+##             ELLIPSOID["WGS 84",6378137,298.257223563,
+##                 LENGTHUNIT["metre",1]]],
+##         PRIMEM["Greenwich",0,
+##             ANGLEUNIT["degree",0.0174532925199433]],
+##         ID["EPSG",4326]],
+##     CONVERSION["UTM zone 17N",
+##         METHOD["Transverse Mercator",
+##             ID["EPSG",9807]],
+##         PARAMETER["Latitude of natural origin",0,
+##             ANGLEUNIT["Degree",0.0174532925199433],
+##             ID["EPSG",8801]],
+##         PARAMETER["Longitude of natural origin",-81,
+##             ANGLEUNIT["Degree",0.0174532925199433],
+##             ID["EPSG",8802]],
+##         PARAMETER["Scale factor at natural origin",0.9996,
+##             SCALEUNIT["unity",1],
+##             ID["EPSG",8805]],
+##         PARAMETER["False easting",500000,
+##             LENGTHUNIT["metre",1],
+##             ID["EPSG",8806]],
+##         PARAMETER["False northing",0,
+##             LENGTHUNIT["metre",1],
+##             ID["EPSG",8807]]],
+##     CS[Cartesian,2],
+##         AXIS["(E)",east,
+##             ORDER[1],
+##             LENGTHUNIT["metre",1]],
+##         AXIS["(N)",north,
+##             ORDER[2],
+##             LENGTHUNIT["metre",1]],
+##     ID["EPSG",32617]]
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{terra}\SpecialCharTok{::}\FunctionTok{crs}\NormalTok{(r1)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "PROJCRS[\"WGS 84 / UTM zone 17N\",\n    BASEGEOGCRS[\"WGS 84\",\n        DATUM[\"World Geodetic System 1984\",\n            ELLIPSOID[\"WGS 84\",6378137,298.257223563,\n                LENGTHUNIT[\"metre\",1]]],\n        PRIMEM[\"Greenwich\",0,\n            ANGLEUNIT[\"degree\",0.0174532925199433]],\n        ID[\"EPSG\",4326]],\n    CONVERSION[\"Transverse Mercator\",\n        METHOD[\"Transverse Mercator\",\n            ID[\"EPSG\",9807]],\n        PARAMETER[\"Latitude of natural origin\",0,\n            ANGLEUNIT[\"degree\",0.0174532925199433],\n            ID[\"EPSG\",8801]],\n        PARAMETER[\"Longitude of natural origin\",-81,\n            ANGLEUNIT[\"degree\",0.0174532925199433],\n            ID[\"EPSG\",8802]],\n        PARAMETER[\"Scale factor at natural origin\",0.9996,\n            SCALEUNIT[\"unity\",1],\n            ID[\"EPSG\",8805]],\n        PARAMETER[\"False easting\",500000,\n            LENGTHUNIT[\"metre\",1],\n            ID[\"EPSG\",8806]],\n        PARAMETER[\"False northing\",0,\n            LENGTHUNIT[\"metre\",1],\n            ID[\"EPSG\",8807]]],\n    CS[Cartesian,2],\n        AXIS[\"easting\",east,\n            ORDER[1],\n            LENGTHUNIT[\"metre\",1]],\n        AXIS[\"northing\",north,\n            ORDER[2],\n            LENGTHUNIT[\"metre\",1]],\n    ID[\"EPSG\",32617]]"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{aoi }\OtherTok{\textless{}{-}} \FunctionTok{st\_transform}\NormalTok{(aoi, }\AttributeTok{crs =}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{crs}\NormalTok{(r1))}
 \end{Highlighting}
 \end{Shaded}
 
@@ -549,6 +637,17 @@ Store your final result as \texttt{sandusky\_0816}.
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# your code here}
+
+\NormalTok{target\_file }\OtherTok{\textless{}{-}}\NormalTok{ raster\_files[}\FunctionTok{grepl}\NormalTok{(}\StringTok{"0816\_0822"}\NormalTok{, raster\_files)]}
+\NormalTok{r\_target }\OtherTok{\textless{}{-}} \FunctionTok{rast}\NormalTok{(target\_file)}
+
+\NormalTok{r\_target\_clean }\OtherTok{\textless{}{-}} \FunctionTok{clean\_cicyano}\NormalTok{(r\_target)}
+\NormalTok{r\_target\_ci }\OtherTok{\textless{}{-}} \FunctionTok{dn\_to\_ci}\NormalTok{(r\_target\_clean)}
+
+\CommentTok{\# convert sf to vect}
+\NormalTok{aoi\_vect }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{vect}\NormalTok{(aoi)}
+\NormalTok{r\_crop }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{crop}\NormalTok{(r\_target\_ci, aoi\_vect)}
+\NormalTok{sandusky\_0816 }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{mask}\NormalTok{(r\_crop, aoi\_vect)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -570,8 +669,27 @@ CI value for:
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# your code here}
+\CommentTok{\#full erie mean }
+\NormalTok{terra}\SpecialCharTok{::}\FunctionTok{global}\NormalTok{(r\_target\_ci, }\StringTok{"mean"}\NormalTok{, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
+
+\begin{verbatim}
+##                                                       mean
+## ts_2017.0816_0822.L4.LE3.CIcyano.MAXIMUM_7day 0.0005582809
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# just sandusky mean}
+\NormalTok{terra}\SpecialCharTok{::}\FunctionTok{global}\NormalTok{(sandusky\_0816, }\StringTok{"mean"}\NormalTok{, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##                                                     mean
+## ts_2017.0816_0822.L4.LE3.CIcyano.MAXIMUM_7day 0.02085237
+\end{verbatim}
 
 \hypertarget{map-it}{%
 \subsubsection{2.4 Map it}\label{map-it}}
@@ -592,19 +710,83 @@ include:
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# your code here}
+\FunctionTok{tmap\_mode}\NormalTok{(}\StringTok{"plot"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
+
+\begin{verbatim}
+## i tmap mode set to "plot".
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{tm\_shape}\NormalTok{(sandusky\_0816) }\SpecialCharTok{+}
+  \FunctionTok{tm\_raster}\NormalTok{(}\AttributeTok{title =} \StringTok{"Cyanobacteria Index"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{tm\_layout}\NormalTok{(}\AttributeTok{title =} \StringTok{"CI in Sandusky Bay (Aug 16–22, 2017)"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{tm\_scale\_bar}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## -- tmap v3 code detected -------------------------------------------------------
+## [v3->v4] `tm_raster()`: migrate the argument(s) related to the legend of the
+## visual variable `col` namely 'title' to 'col.legend = tm_legend(<HERE>)'[v3->v4] `tm_layout()`: use `tm_title()` instead of `tm_layout(title = )`! `tm_scale_bar()` is deprecated. Please use `tm_scalebar()` instead.
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in graphics::strwidth(comp$text, units = "inch", family =
+## comp$fontfamily, : conversion failure on 'CI in Sandusky Bay (Aug 16–22, 2017)'
+## in 'mbcsToSbcs': dot substituted for <e2>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in graphics::strwidth(comp$text, units = "inch", family =
+## comp$fontfamily, : conversion failure on 'CI in Sandusky Bay (Aug 16–22, 2017)'
+## in 'mbcsToSbcs': dot substituted for <80>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in graphics::strwidth(comp$text, units = "inch", family =
+## comp$fontfamily, : conversion failure on 'CI in Sandusky Bay (Aug 16–22, 2017)'
+## in 'mbcsToSbcs': dot substituted for <93>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'CI in Sandusky Bay (Aug 16–22, 2017)' in 'mbcsToSbcs':
+## dot substituted for <e2>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'CI in Sandusky Bay (Aug 16–22, 2017)' in 'mbcsToSbcs':
+## dot substituted for <80>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'CI in Sandusky Bay (Aug 16–22, 2017)' in 'mbcsToSbcs':
+## dot substituted for <93>
+\end{verbatim}
+
+\includegraphics{lab04-2_files/figure-latex/map_sandusky-1.pdf}
 
 \hypertarget{questions-for-task-2}{%
 \subsubsection{Questions for Task 2:}\label{questions-for-task-2}}
 
 \textbf{Q2.1} In your own words, what is the difference between
 \texttt{terra::crop()} and \texttt{terra::mask()}? Why did we use both
-here instead of just one?
+here instead of just one? crop makes the bounding box smaller but mask
+remove areas outside the boarders, crop is fast because it just selects
+a small portion and then allows for mask to do less heavy lifting
 
 \textbf{Q2.2} The mean CI value for Sandusky Bay is likely different
 from the full lake mean. What could explain this? Does this necessarily
-mean Sandusky Bay has more or less cyanobacteria than average?
+mean Sandusky Bay has more or less cyanobacteria than average? sandusky
+bay could have more runoff in that area of be caused by a couple of high
+cyanobractice grid cells, so the data might be skewed instead of
+normalized
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -628,6 +810,13 @@ efficient.}
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# your code here}
+\CommentTok{\# choose 4 rasters}
+\NormalTok{selected\_files }\OtherTok{\textless{}{-}}\NormalTok{ raster\_files[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{4}\NormalTok{]}
+
+\NormalTok{r\_stack }\OtherTok{\textless{}{-}}\NormalTok{ selected\_files }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  purrr}\SpecialCharTok{::}\FunctionTok{map}\NormalTok{(}\SpecialCharTok{\textasciitilde{}} \FunctionTok{rast}\NormalTok{(.x) }\SpecialCharTok{\%\textgreater{}\%}
+               \FunctionTok{clean\_cicyano}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+               \FunctionTok{dn\_to\_ci}\NormalTok{()) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{reduce}\NormalTok{(c)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -648,8 +837,26 @@ path --- the date range is the part of the filename that looks like
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# your code here}
+\NormalTok{means }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{global}\NormalTok{(r\_stack, }\StringTok{"mean"}\NormalTok{, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+
+\NormalTok{dates }\OtherTok{\textless{}{-}} \FunctionTok{basename}\NormalTok{(selected\_files) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  stringr}\SpecialCharTok{::}\FunctionTok{str\_extract}\NormalTok{(}\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{d\{4\}\_}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{d\{4\}"}\NormalTok{)}
+
+\NormalTok{df\_time }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}
+  \AttributeTok{date =}\NormalTok{ dates,}
+  \AttributeTok{mean\_ci =}\NormalTok{ means[,}\DecValTok{1}\NormalTok{])}
+
+\NormalTok{df\_time}
 \end{Highlighting}
 \end{Shaded}
+
+\begin{verbatim}
+##        date      mean_ci
+## 1 0802_0808 0.0004572394
+## 2 0816_0822 0.0005582809
+## 3 0823_0829 0.0007812601
+## 4 0920_0926 0.0010982727
+\end{verbatim}
 
 \hypertarget{plot-the-time-series}{%
 \subsubsection{3.3 Plot the time series}\label{plot-the-time-series}}
@@ -661,6 +868,23 @@ shows the highest mean bloom intensity?
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# your code here}
+\FunctionTok{ggplot}\NormalTok{(df\_time, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ date, }\AttributeTok{y =}\NormalTok{ mean\_ci, }\AttributeTok{group =} \DecValTok{1}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{x =} \StringTok{"Date"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Mean CI"}\NormalTok{, }\AttributeTok{title =} \StringTok{"Bloom Intensity Over Time"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{lab04-2_files/figure-latex/time_series_plot-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{best\_file }\OtherTok{\textless{}{-}}\NormalTok{ raster\_files[}\FunctionTok{grepl}\NormalTok{(}\StringTok{"0920\_0926"}\NormalTok{, raster\_files)]}
+
+\NormalTok{best\_raster }\OtherTok{\textless{}{-}} \FunctionTok{rast}\NormalTok{(best\_file) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{clean\_cicyano}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{dn\_to\_ci}\NormalTok{()}
 \end{Highlighting}
 \end{Shaded}
 
@@ -693,9 +917,43 @@ your approach in pseudocode first.}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\# your code here}
+\CommentTok{\# choose two dates (first = earlier, second = later)}
+\NormalTok{r\_early }\OtherTok{\textless{}{-}}\NormalTok{ r\_stack[[}\DecValTok{2}\NormalTok{]]}
+\NormalTok{r\_late  }\OtherTok{\textless{}{-}}\NormalTok{ r\_stack[[}\DecValTok{4}\NormalTok{]]}
+
+\NormalTok{r\_early\_na0 }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{ifel}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(r\_early), }\DecValTok{0}\NormalTok{, r\_early)}
+\NormalTok{r\_late\_na0  }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{ifel}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(r\_late), }\DecValTok{0}\NormalTok{, r\_late)}
+
+
+\NormalTok{rcl }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{c}\NormalTok{(}
+  \DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{,  }
+  \FloatTok{0.00001}\NormalTok{, }\ConstantTok{Inf}\NormalTok{, }\DecValTok{1}  
+\NormalTok{), }\AttributeTok{ncol =} \DecValTok{3}\NormalTok{, }\AttributeTok{byrow =} \ConstantTok{TRUE}\NormalTok{)}
+
+\NormalTok{b\_early }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{classify}\NormalTok{(r\_early\_na0, rcl)}
+\NormalTok{b\_late  }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{classify}\NormalTok{(r\_late\_na0, rcl)}
+
+\NormalTok{persistent\_bloom }\OtherTok{\textless{}{-}}\NormalTok{ b\_early }\SpecialCharTok{*}\NormalTok{ b\_late}
+
+\NormalTok{new\_bloom }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{ifel}\NormalTok{(b\_late }\SpecialCharTok{==} \DecValTok{1} \SpecialCharTok{\&}\NormalTok{ b\_early }\SpecialCharTok{==} \DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)}
+
+\FunctionTok{plot}\NormalTok{(persistent\_bloom,}
+     \AttributeTok{col =} \FunctionTok{c}\NormalTok{(}\StringTok{"lightgrey"}\NormalTok{, }\StringTok{"red"}\NormalTok{),}
+     \AttributeTok{main =} \StringTok{"Persistent Bloom"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
+
+\includegraphics{lab04-2_files/figure-latex/binary_comparison-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(new\_bloom,}
+     \AttributeTok{col =} \FunctionTok{c}\NormalTok{(}\StringTok{"lightgrey"}\NormalTok{, }\StringTok{"blue"}\NormalTok{),}
+     \AttributeTok{main =} \StringTok{"New Bloom"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{lab04-2_files/figure-latex/binary_comparison-2.pdf}
 
 \hypertarget{questions-for-task-3}{%
 \subsubsection{Questions for Task 3:}\label{questions-for-task-3}}
@@ -704,9 +962,14 @@ your approach in pseudocode first.}
 as a measure of bloom severity across the whole lake? What would be a
 more robust alternative metric?
 
+it can cover up spaital variation through the lake, so maybe max CI or
+percent above or below CI
+
 \textbf{Q3.2} Stacking rasters with \texttt{c()} in terra creates a
 multi-layer SpatRaster. What requirement must all rasters meet in order
 to be stacked this way? (Think: extent, resolution, CRS.)
+
+they all need the same extent, res, and CRS
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -727,8 +990,61 @@ the filename or AOI name.
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# your code here}
+\NormalTok{shp\_files }\OtherTok{\textless{}{-}} \FunctionTok{list.files}\NormalTok{(}\StringTok{"./erie\_raster\_ex/bounds/"}\NormalTok{,}
+                        \AttributeTok{pattern =} \StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{.shp$"}\NormalTok{, }\AttributeTok{full.names =} \ConstantTok{TRUE}\NormalTok{)}
+
+\NormalTok{aois }\OtherTok{\textless{}{-}}\NormalTok{ shp\_files }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  purrr}\SpecialCharTok{::}\FunctionTok{map}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ \{}
+\NormalTok{    x }\OtherTok{\textless{}{-}}\NormalTok{ sf}\SpecialCharTok{::}\FunctionTok{read\_sf}\NormalTok{(.x)}
+\NormalTok{    x }\OtherTok{\textless{}{-}}\NormalTok{ sf}\SpecialCharTok{::}\FunctionTok{st\_make\_valid}\NormalTok{(x)}
+\NormalTok{    x }\OtherTok{\textless{}{-}}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{mutate}\NormalTok{(x, }\AttributeTok{aoi\_name =} \FunctionTok{basename}\NormalTok{(.x))}
+    \FunctionTok{return}\NormalTok{(x)}
+\NormalTok{  \}) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{bind\_rows}\NormalTok{()}
+
+\CommentTok{\# convert to terra}
+\NormalTok{aois\_vect }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{vect}\NormalTok{(aois)}
+
+\CommentTok{\# check}
+\NormalTok{aois}
 \end{Highlighting}
 \end{Shaded}
+
+\begin{verbatim}
+## Simple feature collection with 6 features and 3 fields
+## Geometry type: POLYGON
+## Dimension:     XY
+## Bounding box:  xmin: 283549.5 ymin: 4586777 xmax: 375219.9 ymax: 4663444
+## Projected CRS: WGS 84 / UTM zone 17N
+## # A tibble: 6 x 4
+##   Shape_Leng  Shape_Area                                       geometry aoi_name
+## *      <dbl>       <dbl>                                  <POLYGON [m]> <chr>   
+## 1    137538.  941094393. ((364557.6 4586783, 360286.3 4589116, 361661.~ bb_erie~
+## 2    324013. 6602320921. ((374867.5 4640842, 364559.6 4586777, 283549.~ bb_erie~
+## 3     52627.  177517753. ((297096.1 4631671, 297192 4631636, 297287.6 ~ bb_erie~
+## 4     96612.  538139738. ((364479.5 4586809, 328673 4587188, 328759.2 ~ bb_erie~
+## 5     77388.  258596657. ((359172.9 4594873, 361687.8 4590930, 361249.~ bb_erie~
+## 6    102534.  546752337. ((324315.5 4609049, 324308.4 4609059, 324228.~ bb_erie~
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{aois\_vect}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  class       : SpatVector 
+##  geometry    : polygons 
+##  dimensions  : 6, 3  (geometries, attributes)
+##  extent      : 283549.5, 375219.9, 4586777, 4663444  (xmin, xmax, ymin, ymax)
+##  coord. ref. : WGS 84 / UTM zone 17N (EPSG:32617) 
+##  names       : Shape_Leng Shape_Area            aoi_name
+##  type        :      <num>      <num>               <chr>
+##  values      :  1.375e+05  9.411e+08 bb_erie_islands.shp
+##                  3.24e+05  6.602e+09   bb_erie_large.shp
+##                 5.263e+04  1.775e+08  bb_erie_maumee.shp
+\end{verbatim}
 
 \hypertarget{extract-by-area}{%
 \subsubsection{4.2 Extract by area}\label{extract-by-area}}
@@ -745,6 +1061,16 @@ You can use \texttt{group\_by()} and \texttt{summarize()} to aggregate.}
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# your code here}
+\NormalTok{vals }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{extract}\NormalTok{(best\_raster, aois\_vect)}
+
+\NormalTok{vals}\SpecialCharTok{$}\NormalTok{aoi\_name }\OtherTok{\textless{}{-}}\NormalTok{ aois}\SpecialCharTok{$}\NormalTok{aoi\_name[vals}\SpecialCharTok{$}\NormalTok{ID]}
+
+\NormalTok{summary\_stats }\OtherTok{\textless{}{-}}\NormalTok{ vals }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{group\_by}\NormalTok{(aoi\_name) }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{  dplyr}\SpecialCharTok{::}\FunctionTok{summarize}\NormalTok{(}
+    \AttributeTok{mean\_ci =} \FunctionTok{mean}\NormalTok{(.[[}\DecValTok{2}\NormalTok{]], }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{max\_ci  =} \FunctionTok{max}\NormalTok{(.[[}\DecValTok{2}\NormalTok{]], }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{  )}
 \end{Highlighting}
 \end{Shaded}
 
@@ -757,8 +1083,22 @@ mean CI value on that date? Which had the highest maximum?
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# your code here}
+
+\NormalTok{summary\_stats}
 \end{Highlighting}
 \end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 6 x 3
+##   aoi_name                  mean_ci max_ci
+##   <chr>                       <dbl>  <dbl>
+## 1 bb_erie_islands.shp       0.00872 0.0614
+## 2 bb_erie_large.shp         0.00872 0.0614
+## 3 bb_erie_maumee.shp        0.00872 0.0614
+## 4 bb_erie_sandusky.shp      0.00872 0.0614
+## 5 bb_erie_sandusky_plus.shp 0.00872 0.0614
+## 6 bb_erie_west_sister.shp   0.00872 0.0614
+\end{verbatim}
 
 \hypertarget{map-with-aoi-overlays}{%
 \subsubsection{4.4 Map with AOI overlays}\label{map-with-aoi-overlays}}
@@ -770,8 +1110,103 @@ boundaries and label them if possible.
 \begin{Shaded}
 \begin{Highlighting}[]
 \CommentTok{\# your code here}
+\NormalTok{terra}\SpecialCharTok{::}\FunctionTok{ext}\NormalTok{(best\_raster)}
 \end{Highlighting}
 \end{Shaded}
+
+\begin{verbatim}
+## SpatExtent : 281282.934996, 694382.934996, 4572608.997997, 4764308.997997 (xmin, xmax, ymin, ymax)
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{st\_bbox}\NormalTok{(aois)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      xmin      ymin      xmax      ymax 
+##  283549.5 4586776.6  375219.9 4663443.9
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{aois\_vect }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{vect}\NormalTok{(aois)}
+\NormalTok{raster\_crop }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{crop}\NormalTok{(best\_raster, aois\_vect)}
+\NormalTok{raster\_mask }\OtherTok{\textless{}{-}}\NormalTok{ terra}\SpecialCharTok{::}\FunctionTok{mask}\NormalTok{(raster\_crop, aois\_vect)}
+
+\FunctionTok{tmap\_mode}\NormalTok{(}\StringTok{"plot"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## i tmap mode set to "plot".
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{tm\_shape}\NormalTok{(raster\_mask) }\SpecialCharTok{+}
+  \FunctionTok{tm\_raster}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Cyanobacteria Index"}\NormalTok{,}
+    \AttributeTok{palette =} \StringTok{"YlGnBu"}\NormalTok{,}
+    \AttributeTok{style =} \StringTok{"cont"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{tm\_shape}\NormalTok{(aois) }\SpecialCharTok{+}
+  \FunctionTok{tm\_borders}\NormalTok{(}\AttributeTok{col =} \StringTok{"red"}\NormalTok{, }\AttributeTok{lwd =} \DecValTok{2}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{tm\_layout}\NormalTok{(}\AttributeTok{title =} \StringTok{"Peak Bloom (Sept 20–26, 2017)"}\NormalTok{, }\AttributeTok{legend.outside =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{tm\_scalebar}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## -- tmap v3 code detected -------------------------------------------------------
+## [v3->v4] `tm_raster()`: instead of `style = "cont"`, use col.scale =
+## `tm_scale_continuous()`.
+## i Migrate the argument(s) 'palette' (rename to 'values') to
+##   'tm_scale_continuous(<HERE>)'[v3->v4] `tm_raster()`: migrate the argument(s) related to the legend of the
+## visual variable `col` namely 'title' to 'col.legend = tm_legend(<HERE>)'[v3->v4] `tm_layout()`: use `tm_title()` instead of `tm_layout(title = )`[cols4all] color palettes: use palettes from the R package cols4all. Run
+## `cols4all::c4a_gui()` to explore them. The old palette name "YlGnBu" is named
+## "brewer.yl_gn_bu"
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in graphics::strwidth(comp$text, units = "inch", family =
+## comp$fontfamily, : conversion failure on 'Peak Bloom (Sept 20–26, 2017)' in
+## 'mbcsToSbcs': dot substituted for <e2>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in graphics::strwidth(comp$text, units = "inch", family =
+## comp$fontfamily, : conversion failure on 'Peak Bloom (Sept 20–26, 2017)' in
+## 'mbcsToSbcs': dot substituted for <80>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in graphics::strwidth(comp$text, units = "inch", family =
+## comp$fontfamily, : conversion failure on 'Peak Bloom (Sept 20–26, 2017)' in
+## 'mbcsToSbcs': dot substituted for <93>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'Peak Bloom (Sept 20–26, 2017)' in 'mbcsToSbcs': dot
+## substituted for <e2>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'Peak Bloom (Sept 20–26, 2017)' in 'mbcsToSbcs': dot
+## substituted for <80>
+\end{verbatim}
+
+\begin{verbatim}
+## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+## conversion failure on 'Peak Bloom (Sept 20–26, 2017)' in 'mbcsToSbcs': dot
+## substituted for <93>
+\end{verbatim}
+
+\includegraphics{lab04-2_files/figure-latex/map_with_aois-1.pdf}
 
 \hypertarget{questions-for-task-4}{%
 \subsubsection{Questions for Task 4:}\label{questions-for-task-4}}
@@ -780,10 +1215,16 @@ boundaries and label them if possible.
 \texttt{terra::extract()} results for some AOIs. What could cause this?
 Name at least two reasons.
 
+all cells inside the AOI was NA (unable to get a clear picture
+ex.clouds) AOI was not within the raster vounding box
+
 \textbf{Q4.2} Looking at the spatial distribution of your AOIs on the
 map, which areas do you expect to be most prone to severe blooms, and
 why? (Consider geography, hydrology, land use in the Lake Erie
 watershed.)
+
+near river inputs there more runoffs, if theres more farms located in
+one area normally mean more nutrients enter.
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -792,21 +1233,39 @@ watershed.)
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
+\tightlist
 \item
   Throughout this lab you have been working with \textbf{raster} data.
   In what ways was the analysis workflow different from working with
   vector data (like you did in Labs 1--3)? What concepts translated
   directly, and what was fundamentally different?
+\end{enumerate}
+
+i preferred working with vector data i feel like it was easier make it
+do what i wanted but i see how rasters our helpful since you use gridded
+cells and so it makes it easier to decrease the resoultion if you have a
+really large data set and not enough power to process it, and easier to
+do basic math between multiple rasters, but i like how vectors was more
+feature based
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
 \item
   Cyanobacteria blooms are affected by temperature, nutrient runoff, and
   lake circulation. Based on the temporal patterns you observed in Task
   3, does the timing of peak bloom match what you would expect
   ecologically? Explain your reasoning (I know you're not an expert on
-  blooms - just demonstrate thinking).
+  blooms - just demonstrate thinking). bloom typically occur in late
+  summer so august to September when the water is warm and nureitnt from
+  farming activity is getting washed into the water so makes sense
+  ecologically
 \item
   We used \texttt{terra::extract()} in Task 4 to perform a zonal
   summary. How does this relate conceptually to the \textbf{zonal
   operations} category of map algebra discussed in class?
 \end{enumerate}
+
+because it defines raster values within zones
 
 \end{document}

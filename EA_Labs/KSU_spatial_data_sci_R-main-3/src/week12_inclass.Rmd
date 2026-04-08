@@ -15,14 +15,12 @@ library(tmap)
 
 
 ### Let's read a raster image   
-a raster images is a grid of cells 
 
 ```{r}
 myras <- terra::rast("../data/ts_2016.1007_1013.L4.LCHMP3.CIcyano.MAXIMUM_7day.tif")
 ```
 
 plot it
-in UTM 
 ```{r}
 plot(myras)
 ```
@@ -31,15 +29,15 @@ plot(myras)
 ### Basic properties
 
 ```{r}
-terra::ext(myras) #Give the coorindates
+terra::ext(myras)
 
-terra::nlyr(myras) #number of layers
+terra::nlyr(myras)
 
-terra::ncol(myras) #number of columns
+terra::ncol(myras)
 
-terra::nrow(myras) #number of rows
+terra::nrow(myras)
 
-terra::ncell(myras) # cel is columns times rows 
+terra::ncell(myras)
 
 
 # to demonstrate rows * columns = cells
@@ -48,11 +46,9 @@ ncol(myras) * nrow(myras) == ncell(myras)
 ```
 
 ### QUESTION: what's the data structure of a raster file?
-a grid of cells 
-what is the cell size 
-most cells our square sometimes they our rectanglar 
 
-Get values by index 
+
+Get values by index
 ```{r}
 myras[1]
 
@@ -61,7 +57,7 @@ myras[33961]
 
 ```
 
-### Or by row, column (gives pixel value of that cell)
+### Or by row, column
 ```{r}
 
 #[row, column]  
@@ -71,13 +67,11 @@ myras[132, 164]
 ### Two questions:
 
 1. How is "single indexing" different than row, column indexing?
-need to know where the orgins is not always in top left 
 2. For (row, column) indexing, what other information is useful/required to know what you're doing?
 
 
 
 ### Frequency of values 
-gives the number of times a number appears 
 ```{r}
 
 terra::freq(myras)
@@ -97,12 +91,10 @@ terra::freq(myras) %>%
 ```
 
 Was the plot useful? Why or why not?
-tells that a shit ton of values outside of detection 
 
 
 
 ### Let's try again
-gets rid of 252/ out of bounds detection limit
 ```{r}
 terra::freq(myras) %>%
   dplyr::filter(value < 252) %>% 
@@ -110,7 +102,7 @@ terra::freq(myras) %>%
   geom_bar(stat = "identity")
 ```
 Better?
-get rid of 252 
+
 
 Why not just use an actual histogram?
 
@@ -121,12 +113,11 @@ terra::freq(myras) %>%
   geom_histogram()
 ```
 So, why NOT just use a histogram?
-dont use with freq tables because it doesnt count each cell 
 
 ### Another way to "get" cell values
 ```{r}
 myras %>% terra::values(.) %>%
-  head(10) #gives the first however many (this case 10)
+  head(10)
 ```
 Perhaps not the most useful for printing to the console, but does demonstrate how to access raw data values
 
@@ -144,13 +135,10 @@ What happened?
 
 
 More obvious comparisons
-fun = max (takes the maximum value can change to mean or min or whatever )
 
 ```{r}
 terra::aggregate(myras, 2, fun = max) %>% plot()
 terra::aggregate(myras, 5, fun = max) %>% plot()
-
-
 ```
 
 Interpret the results. How do they differ in spatial scale, generalization, etc.?
@@ -213,21 +201,14 @@ Any questions?
 
 Map algebra (or cartographic modeling) divides raster operations into four subclasses (Tomlin 1990), with each working on one or several grids simultaneously:
 
-you can add or multiply rasters togeter
 1. Local or per-cell operations
-look at cell by cell neighbors do not matter
-
 
 2. Focal or neighborhood operations. Most often the output cell value is the result of a 3 x 3 input cell block
-looks at neighbors (surrounding cells) queen continuty 
 
 3. Zonal operations are similar to focal operations, but the surrounding pixel grid on which new values are computed can have irregular sizes and shapes
 
-fancy focal can be any shape can be a zone (like a county)
-
 4. Global or per-raster operations; that means the output cell derives its value potentially from one or several entire rasters
 
-what is accross the entire stat what is the mean or max or what everrrrr
 
 ### Local operations
 
@@ -255,7 +236,6 @@ Ideas?
 
 
 We could verify the range of values
-gives the range of the two and can tell the first is half the second 
 
 ```{r}
 myras %>% values() %>% range(na.rm = T)
@@ -293,15 +273,8 @@ validdata
 plot(validdata)
 ```
 What do we have?
-the white colors is NA values 
-dtects blooming pixels 
-
-
 
 How might this (essentially binary) raster be useful?
-you can multiply with orgianls raster and it will only include valids data points 
-0 times the invalid is 0 but 1 times valid pictures is valid point and is times 1 
-
 
 Any ideas?
 
@@ -311,7 +284,7 @@ validRaster <- myras * validdata
 plot(validRaster)
 ```
 What was our result?
-get rids of invalid numbers and only keeps valid numer 
+
 
 ### We can "do algebra" using a function too!
 ```{r}
@@ -322,7 +295,7 @@ transform_champlain_olci <- function(x){
   10**(((3.0 / 250.0) * x) - 4.2)
 }
 
-myras.ci <- validRaster %>% transform_champlain_olci() #transform in a cell by cell bases 
+myras.ci <- validRaster %>% transform_champlain_olci()
 plot(myras.ci)
 ```
 
@@ -389,43 +362,6 @@ myras.ci %>% terra::values() %>% mean(na.rm = T)
 
 Tell me how large the cyanobacteria bloom is in `myras`. I have shown you everything you need to know
 
-cell res is 300 by 300 which is equal to 90,000 squared meters 
 1. Think through the problem CONCEPTUALLY
 2. THEN once you have the process figured out, write the code
 3. Compare your answer with your classmates'
-
-
-find number of cell with 1 (so bloom is occuring )
-
-
-2.
-```{r}
-validdata = terra::classify(myras, rcl = rcl)
-validdata
-plot(validdata)
-
-
-terra::res(myras)
-
-
-cell_counts <- freq(validdata)
-print(cell_counts)
-
-
-cell_counts*90000
-(cell_counts*90000)/4046.86
-
-#in square kilomteres 
-(cell_counts*90000)/1000000
-
-#percent of lake champiagn blooming 
-(((cell_counts*90000)/1000000)/ 1269) *100
-
-
-```
-
-
-3. answer is 
-73350000 square meters 
-
-18125.16 arces 

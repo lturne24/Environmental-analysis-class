@@ -1,0 +1,213 @@
+---
+title: "Week 7 in-class"
+output: none
+---
+
+
+
+```{r}
+library(tidyverse)
+library(sf)
+library(tmap)
+```
+
+
+Note - your path might be different
+```{r}
+counties <- sf::read_sf("../data/CBW/County_Boundaries.shp") %>% sf::st_make_valid()
+
+dams <- sf::read_sf("../data/CBW/Dam_or_Other_Blockage_Removed_2012_2017.shp") %>% sf::st_make_valid()
+
+streams <- sf::read_sf("../data/CBW/Streams_Opened_by_Dam_Removal_2012_2017.shp") %>% sf::st_make_valid()
+
+tmap::tmap_mode("view")
+tm_shape(counties) + tm_polygons(fill = "STATEFP10")
+
+```
+
+
+Let's just work with Pennsylvania
+```{r}
+pa.counties <- counties %>% filter(STATEFP10 == "42")
+```
+
+
+```{r}
+pa.dams <- st_intersection(dams, pa.counties)
+
+# or
+
+pa.dams <- dams[pa.counties,]
+
+# (I prefer the first option)
+```
+
+```{r}
+st_intersects(dams, pa.counties)
+```
+
+```{r}
+# order matters
+dams %>% st_intersects(x = ., y = pa.counties)
+dams %>% st_intersects(x = pa.counties, y = .)
+```
+Matrix output with the ```sparse``` parameter
+
+```{r}
+dams %>% st_intersects(x = ., y = pa.counties, sparse = F)
+```
+
+Other predicates
+```{r}
+# Disjoint
+dams %>% st_disjoint(., pa.counties, sparse = F)
+
+# Within
+dams %>% st_within(., pa.counties, sparse = F)
+```
+
+More examples
+```{r}
+
+c.tioga <- counties %>% 
+  dplyr::filter(str_detect(NAME10, "Tioga") & STATEFP10 == 42)
+
+streams.tioga <- streams %>% st_intersection(., c.tioga)
+
+# double check the work
+streams.tioga %>% st_covered_by(., c.tioga)
+tm_shape(c.tioga) + tm_polygons(fill = "tan") + tm_shape(streams.tioga) + tm_lines(col = "blue")
+```
+
+
+
+```{r}
+streams.tioga %>% st_is_within_distance(., dams, 1)
+```
+
+Spatial joins (see slides for discussion)
+
+```{r}
+st_join(pa.counties, dams, join = st_intersects)
+```
+
+```{r}
+st_join(pa.counties, dams, join = st_disjoint)
+```
+
+
+```{r}
+st_join(pa.counties, streams, join = st_touches)
+```
+
+
+
+# Part 2
+
+```{r}
+nhds <- sf::read_sf("../data/nhdplus_loads.shp") %>% sf::st_make_valid()
+glimpse(nhds)
+tm_shape(nhds) + tm_polygons(fill = "Baseline_L", n = 10)
+```
+
+
+```{r}
+# RPCs
+rpcs <- sf::read_sf("../data/gn_vt_rpcs.shp") %>% sf::st_make_valid()
+glimpse(rpcs) 
+tm_shape(rpcs) + tm_polygons(fill = "INITIALS")
+```
+
+```{r}
+tm_shape(rpcs) + 
+  tm_shape(nhds) + tm_polygons(fill = "Baseline_L", n = 7) +
+  tm_shape(rpcs) + tm_borders(col = "red")
+```
+
+```{r}
+nhd_rpcs <- st_join(nhds, rpcs, join = st_intersects)
+
+# look at it/confirm it worked
+glimpse(nhd_rpcs)
+
+# plot it
+tm_shape(nhd_rpcs) + tm_polygons(fill = "RPC")
+```
+
+```{r}
+nhd_rpcs %>% 
+  group_by(RPC) %>% 
+  summarize(totalLoad = sum(Baseline_L))
+```
+
+```{r}
+nhd_rpcs %>% 
+  group_by(RPC) %>% 
+  summarize(totalLoad = sum(Baseline_L)) %>%
+  tm_shape(.) + tm_polygons(fill = "totalLoad") # <- this line is new
+```
+
+```{r}
+aggregate(x = nhds, by = rpcs, FUN = sum) # throws an error... what's the problem?
+```
+
+```{r}
+glimpse(nhds) # How many character attributes?
+
+# fix the problem
+nhds %>% dplyr::select(-SOURCEFC, -NHDPlus_Ca, -Tactical_B) %>%
+  aggregate(x = ., by = rpcs, FUN = sum)
+```
+
+```{r}
+# same function, but assign it to a variable
+agg.rpcs <- nhds %>% dplyr::select(-SOURCEFC, -NHDPlus_Ca, -Tactical_B) %>%
+  aggregate(x = ., by = rpcs, FUN = sum)
+```
+
+```{r}
+
+tm_shape(agg.rpcs) + tm_polygons(fill = "Baseline_L")
+
+```
+
+## Remaining tasks
+
+
+```{r}
+nhd_rpcs %>% group_by(NHDPlus_ID) %>% summarise(count = n()) %>%
+  arrange(desc(count))
+```
+
+```{r}
+# same as above, but plot it
+nhd_rpcs %>% group_by(NHDPlus_ID) %>% summarise(count = n()) %>%
+  arrange(desc(count)) %>%
+  mutate(count = as.character(count)) %>% # this is a shortcut, and while it works, not best practice
+  tm_shape(.) + tm_polygons(fill = "count")
+```
+
+
+
+
+
+```{r}
+# area-weighted interpolation
+interp.loads <- nhds %>% dplyr::select(Baseline_L, geometry) %>% 
+  st_interpolate_aw(., rpcs, extensive = T)
+
+tm_shape(interp.loads) + tm_polygons(fill = "Baseline_L")
+```
+
+```{r}
+# do a join 
+comparison <- st_join(agg.rpcs, interp.loads, st_equals)
+
+# calculate the error, then map it
+tmap_mode("view")
+
+comparison %>% mutate(diff = Baseline_L.x - Baseline_L.y) %>%
+  tm_shape(.) + tm_polygons(fill = "diff") +
+  tm_shape(nhds) + tm_borders(col = "gray44")
+```
+
