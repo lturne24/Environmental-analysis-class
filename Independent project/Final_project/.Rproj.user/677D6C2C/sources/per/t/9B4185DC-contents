@@ -1007,7 +1007,7 @@ ggplot(data = HNLC_data, aes(x = AG_ECO3, y = NTL_RESULT, fill = AG_ECO3)) +
   theme_minimal()+
   theme(legend.position = "none")
 
-#eco 9 region boxplots ----
+##eco 9 region boxplots ----
 #box and violing plots 
 
 ggplot(data = HNLC_data, aes(x = AG_ECO9, y = CHLA_RESULT, fill = AG_ECO9)) +
