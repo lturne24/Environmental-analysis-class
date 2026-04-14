@@ -67,8 +67,14 @@ Load the Ohio county geometry from `oh_counties.gpkg`. Also load the 2020 Census
 
 
 counties<- read_sf("./static_mapping/oh_counties.gpkg")
-
 census <- read_csv("./static_mapping/oh_counties_DP2020.csv")
+names(counties)
+names(census)
+
+
+# Join datasets
+counties_joined <- counties %>%
+  left_join(census, by = c("GEOIDFQ" = "geoid"))
 
 
 
@@ -81,9 +87,12 @@ Before joining, inspect the GEOID column in **both** objects. You should notice 
 
 ```{r join_data, echo=TRUE, message=TRUE}
 # your code here
+
+nrow(counties_joined)
 ```
 
 Verify the join worked: how many rows does your joined object have? Does it match what you'd expect?
+88, yes it combined the geoids 
 
 ### 1.2 — Choose and justify a variable
 
@@ -91,6 +100,10 @@ Choose **one** demographic variable from the Census data. If it is a raw count, 
 
 ```{r choose_variable, echo=TRUE, message=TRUE}
 # your code here
+# Percent under 18
+counties_joined <- counties_joined %>% mutate(pct_under18 = (mu5 + m5to9 + m10to14 + m15to19 +
+                        fu5 + f5to9 + f10to14 + f15to19) / poptotal * 100)
+
 ```
 
 ### 1.3 — Build the Ohio-scale map
@@ -105,12 +118,26 @@ Using your joined data, build a choropleth map of all Ohio counties. Requirement
 
 ```{r map_ohio, echo=TRUE, message=TRUE}
 # your code here
+tmap_mode("plot")
+
+map_ohio <- tm_shape(counties_joined) +
+  tm_polygons(
+    col = "pct_under18",
+    style = "quantile",
+    n = 5,
+    palette = "purples",
+    title = "% Under 18"
+  ) +
+  tm_borders(col = "black") +
+  tm_scalebar() +
+  tm_layout(main.title = "Ohio Population Under 18 (%)")
 
 # verify it looks right:
 map_ohio
 ```
 
 **Reflection question 1 (answer in your repo):** Justify your choice of classification method. How would the map's message change if you used a different method? Reference specific class boundaries in your answer.
+i choose quantile so it shows an equal number of classes and makes for easier comparing in the future, jenks would make breaks more empasized, and equal interviews could hided a skew in the data 
 
 ---
 
@@ -126,6 +153,12 @@ Filter the county geometry to Portage and Summit counties. Store the result as `
 
 ```{r study_area, echo=TRUE, message=TRUE}
 # your code here
+sf::sf_use_s2(FALSE)
+
+sa <- counties_joined %>%
+  filter(NAME %in% c("Portage", "Summit")) %>% st_make_valid()
+
+
 ```
 
 ### 2.2 — Municipal boundaries with labels
@@ -136,6 +169,14 @@ Build a map layer showing municipal boundaries with text labels for place names.
 
 ```{r places, echo=TRUE, message=TRUE}
 # your code here
+places <- read_sf("./static_mapping/oh_places.gpkg") %>% st_transform(st_crs(sa))
+
+places_sa <- st_intersection(places, sa)
+
+places_map <- tm_shape(places) +
+  tm_borders(col = "gray40") +
+  tm_text("NAME", size = 0.3)
+
 ```
 
 *Note: You may want to adjust label size or use `tm_text(size = ...)` to avoid overlap. This often requires experimentation.*
@@ -146,6 +187,12 @@ Load `oh_parks.gpkg`. Reproject to match `sa` and spatially intersect. Symbolize
 
 ```{r parks, echo=TRUE, message=TRUE}
 # your code here
+
+parks <- read_sf("./static_mapping/oh_parks.gpkg") %>% st_transform(st_crs(sa)) %>%
+  st_intersection(sa) %>% st_make_valid()
+
+parks_map <- tm_shape(parks) +
+  tm_polygons(col = "FEATTYPE", palette = c("lightgreen", "darkgreen"))
 ```
 
 ### 2.4 — Water features and park intersections
@@ -161,6 +208,17 @@ Next, determine which stream segments **spatially intersect** a park polygon. Us
 
 ```{r water, echo=TRUE, message=TRUE}
 # your code here
+water1 <- read_sf("./static_mapping/tl_2022_39133_linearwater/tl_2022_39133_linearwater.shp")
+water2 <- read_sf("./static_mapping/tl_2023_39153_linearwater/tl_2023_39153_linearwater.shp")
+
+water <- bind_rows(water1, water2) %>%
+  st_transform(st_crs(sa)) %>% st_make_valid()
+
+water$intersects_park <- lengths(st_intersects(water, parks)) > 0
+
+water_map <- tm_shape(water) +
+  tm_lines(col = "intersects_park", palette = c("blue", "darkblue"))
+
 ```
 
 ### 2.5 — Assemble the local map
@@ -169,11 +227,14 @@ Combine your places, parks, and water layers into a single map variable called `
 
 ```{r map_local, echo=TRUE, message=TRUE}
 # your code here
+map_local <- tm_shape(sa) + tm_borders() +
+  parks_map + water_map + places_map
 
 map_local
 ```
 
 **Reflection question 2 (answer in your repo):** Describe the cartographic decisions you made about visual hierarchy in this map. Which features should visually dominate, and what specific symbol choices (size, color, transparency) did you make to achieve that? Why?
+i put the parks in varry shades of green as a dominant feature the the water is blue lines because most people already assoicate blue with water, then i made the place names small so they would not overlap and not cause to much clutter because when made bigger they looked cluttered they our a little hard t read this small but its better then when they overlapped and made the graph look crazy, 
 
 ---
 
@@ -191,6 +252,13 @@ Before cropping, **project** it to match the CRS of `sa` using `terra::project()
 
 ```{r dem, echo=TRUE, message=TRUE}
 # your code here
+dem <- rast("./static_mapping/neoh_dem.tif")
+
+# Project FIRST
+dem_proj <- project(dem, crs(sa))
+
+# Then crop
+dem_crop <- crop(dem_proj, vect(sa))
 ```
 
 *Tip: Projecting a large raster can be slow. Cropping AFTER projecting (as shown here) crops the projected version; cropping BEFORE projecting (to a smaller area first) can be faster. There are trade-offs — consider what's appropriate here.*
@@ -209,11 +277,24 @@ Store this as `map_local_elev`.
 
 ```{r map_local_elev, echo=TRUE, message=TRUE}
 # your code here
+map_local_elev <- 
+  tm_shape(dem_crop) +
+  tm_raster(palette = "YlGn", title = "Elevation") +
+  tm_shape(sa) +
+  tm_polygons(alpha = 0.4) +
+  tm_shape(parks) +
+  tm_polygons(col = "darkgreen") +
+  tm_shape(water) +
+  tm_lines(col = "blue") +
+  tm_compass() +
+  tm_scalebar() +
+  tm_layout(title = "Local Map with Elevation", position = 'Top')
 
 map_local_elev
 ```
 
 **Reflection question 3 (answer in your repo):** How does adding the elevation layer change the map's visual story? Did it create any visual hierarchy problems, and if so, how did you address them?
+adding the evlation showed terrain so it may explain whay certain aspects happening (depending on what your looking at). an example is the parks tend to be near evelation (people like to clime hill for the view) but it also have to play with transparency to make sure it does overpower other things in the map (the parks). i
 
 ---
 
@@ -223,15 +304,21 @@ map_local_elev
 
 This task has two parts. The first uses `tmap_arrange()` — a straightforward approach to multi-panel maps. The second builds a proper inset, which is more powerful but more involved.
 
+
+
 ### 4.1 — Side-by-side with `tmap_arrange()`
 
 Use `tmap_arrange()` to display `map_ohio` and `map_local_elev` side by side. Experiment with the `ncol` and `asp` arguments to get a reasonable layout.
 
 ```{r tmap_arrange, echo=TRUE, message=TRUE}
 # your code here
+tmap_arrange(map_ohio, map_local_elev, ncol = 2)
+
 ```
 
 **Reflection question 4 (answer in your repo):** `tmap_arrange()` is easy to use, but it has real limitations compared to a true inset. What are at least two limitations? (Think about how the two maps relate spatially and what information is or isn't communicated.)
+htye our not connected spatically they our just 2 maps next to each other, then yoou also can't show where the study area is directly yo would have to do that else where 
+
 
 ### 4.2 — Building the inset map
 
@@ -245,8 +332,8 @@ Below is a partially complete code skeleton. **Read every comment carefully** be
 # This is the small map of all of Ohio that shows where our study area is.
 # oh_region is the bounding box polygon you created in Task 2.1.
 
-map_inset <- tm_shape(___) + tm_polygons() +        # fill in: all Ohio counties
-  tm_shape(oh_region) + tm_borders(lwd = ___, col = "red") +  # fill in: border width
+map_inset <- tm_shape(counties_joined) + tm_polygons() +        # fill in: all Ohio counties
+  tm_shape(sa) + tm_borders(lwd = 2, col = "red") +  # fill in: border width
   tm_layout(bg.color = "lightblue") +
   tm_scalebar(position = c("left", "bottom"))
 
@@ -269,8 +356,8 @@ norm_dim <- function(obj) {
 # Calculate dimensions for both maps
 # The main map is based on the study area bounding box (oh_region)
 # The inset map is based on all of Ohio
-main_dim <- norm_dim(___)  # fill in: use oh_region
-ins_dim  <- norm_dim(___)  # fill in: use the all-Ohio sf object
+main_dim <- norm_dim(sa)  # fill in: use oh_region
+ins_dim  <- norm_dim(counties_joined)  # fill in: use the all-Ohio sf object
 
 
 # ---- Step 3: Define viewport positions ----
@@ -310,6 +397,7 @@ Your first attempt will not look perfect — that is expected and intentional. Y
 *Note: Getting the position right requires iterating. Try different values for the scale factor (e.g., `0.3`, `0.5`) and the margin. A scale factor around `0.35–0.45` and bottom-right or bottom-left placement usually works well for this study area.*
 
 **Reflection question 5 (answer in your repo):** In your own words, explain what `norm_dim()` is doing and why it is necessary. What specific visual problem would occur if you skipped that step and passed the raw coordinate extents to `viewport()` directly?
+ it keep the ratio of the image in tact so its not stretched and pulled into a strange shape (like fun house mirrors)
 
 ---
 
@@ -326,6 +414,69 @@ You may use data from any of the course datasets (CBW, Ohio, Lake Erie) or data 
 
 ```{r your_map, echo=TRUE, message=TRUE}
 # your code here
+sw_counties <- c(
+  "Hamilton", "Clermont", "Butler", "Warren", "Preble", "Montgomery", 
+  "Clinton", "Highland", "Brown", "Adams", "Greene", "Fayette",
+  "Ross", "Pike", "Scioto", "Pickaway"
+)
+
+sa2 <- counties_joined %>%
+  filter(NAME %in% sw_counties) %>%
+  st_make_valid()
+
+sa2 <- sa2 %>%
+  mutate(pop_density = poptotal / (ALAND / 1e6))
+
+parks_all <- read_sf("./static_mapping/oh_parks.gpkg") %>%
+  st_transform(st_crs(sa2)) %>%
+  st_filter(sa2) %>%
+  st_make_valid()
+
+parks_all <- parks_all %>%
+  mutate(
+    park_type = case_when(
+      grepl("Local park", FEATTYPE, ignore.case = TRUE) ~ "Local Park",
+      grepl("County park", FEATTYPE, ignore.case = TRUE) ~ "County Park",
+      grepl("State park or Forest", FEATTYPE, ignore.case = TRUE) ~ "State Park / Forest",
+      TRUE ~ "Other"
+    )
+  )
+
+sf::sf_use_s2(FALSE)
+
+
+map_task5 <- 
+  tm_shape(sa2) +
+  tm_polygons(
+    fill = "pop_density",
+    fill.scale = tm_scale_intervals(n = 5, values = "purples"),
+    fill.legend = tm_legend(title = "Population Density"),
+    fill_alpha = 0.8
+  ) +
+
+  tm_text("NAME", size = 0.6, fontface = "bold") +
+
+  tm_shape(parks_all) +
+  tm_polygons(
+    fill = "park_type",
+    fill.scale = tm_scale_categorical(
+      values = c("yellow", "green", "darkgreen", "orange")
+    ),
+    fill.legend = tm_legend(title = "Park Type"),
+    fill_alpha = 0.6
+  ) +
+
+  tm_borders(col = "black", lwd = 1.5) +
+
+  tm_title("Population Density and Park Types in Southwest Ohio") +
+  tm_scalebar() +
+  tm_compass()
+
+
+map_task5
+
+
+
 ```
 
 ---
@@ -333,12 +484,23 @@ You may use data from any of the course datasets (CBW, Ohio, Lake Erie) or data 
 ## Questions
 
 1. Describe and justify your cartographic choices in Task 1 (Ohio choropleth). Specifically address: your classification method, your color palette, and how these choices serve the map's intended communication goal. Would the map tell a different story with different choices?
+i choose quantile because it evenly distrubuted everything and i wasnt looking to highlight anything (clusters or cover skewed data) then i choose the purple because i liked the color and since this was population under 18 i figured i shouldnt use a sure natural color like greens because people tend to assicate it with outside and nature purple tends to be more of a manmade color and allows people to assicate with a variable like population 
+
 
 2. In Task 2.4 you identified stream segments that intersect parks. Describe your approach step by step, as if explaining it to a classmate who hasn't done spatial data analysis before. Why is this distinction cartographically meaningful (*i.e., why might a map reader care which streams run through parks)?
 
+so you load in the ater and parks then interest them to see where they overalp and where they iverlap you have to map differently because the the way the tm map works it layer things one by one so it would not show the water if parks our overtop, then it also helps because it empasizes how humans you ecological locations in recreational ways to swim in a a strream or river 
+
 3. In Task 4, you used both `tmap_arrange()` and the `grid` viewport approach to create multi-panel maps. What are the trade-offs between these two methods? In what professional or analytical context would you prefer one over the other?
+
+arrange is for quick an simple maps but it does not spatiallu connect the maps and viewport is more work but spatially connects the map and allows for more professional looking graphs so is you just need to do a couple quick comparisions so you can decide on what direction to take a project you would use arrange but if its a publication or presentation use the viewport 
 
 4. Compare the cartographic decisions you made individually in this lab to the decisions your group made collectively during the in-class frankenmap exercise. Where did your choices diverge, and what explains the difference?
 
+the in class was a more quick and dirty excerise where we were just trying to make something happen to get it to the next group so we werent holding up anyone, whereas by myself i took the the time to think about color and transparency and make things look nice even if it took me a little more time. i think the big factor was time we were struggling in class to get everything together and happen but I have as much time as i wish to deciate to the lab 
+
 5. Describe your original map in Task 5: what spatial story are you trying to tell, did you achieve your communication goal, and what would you change given more time?
+
+im trying to look at where parks our located in comparsion to population of southwest ohio so i took the county in the south west ohio and made a chlorpath map by population then overlayed parks ( with park types of varying colors), so you can see how population changes in relation to public green spaces and if the type of park may have an effect. 
+
 

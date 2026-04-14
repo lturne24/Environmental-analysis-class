@@ -1,0 +1,260 @@
+---
+title: "Lab 03"
+#author: "Dr. Patrick Bitterman"
+#date: "`r format(Sys.time(), '%Y %B %d')`"
+output: pdf_document
+my_subtitle: "Env Analysis in R"
+fancy: true
+geometry: margin=1in
+latex_engine: pdflatex
+colorlinks: true
+---
+
+# Lab 03: Spatial autocorrelation, globally and locally
+
+### Read the instructions COMPLETELY before starting the lab
+
+This lab builds on many of the discussions and exercises from class, including previous labs.
+
+### Attribution
+
+This lab uses some code examples and directions from https://mgimond.github.io/Spatial/spatial-autocorrelation-in-r.html
+
+### Formatting your submission
+
+This lab must be placed into a public repository on GitHub (www.github.com). Before the due date, submit **on Canvas** a link to the repository. I will then download your repositories and run your code. The code must be contained in either a .R script or a .Rmd markdown document. As I need to run your code, any data you use in the lab must be referenced using **relative path names**. Finally, answers to questions I pose in this document must also be in the repository at the time you submit your link to Canvas. They can be in a separate text file, or if you decide to use an RMarkdown document, you can answer them directly in the doc.
+
+## Data
+
+The data for this lab can be found on the US Census website. The US Census provides various files and tables for download, but will instead use a package that provides a convenient way to access Census data and geometry. This will REQUIRE YOU TO REGISTER FOR AN API KEY and then use it in your code. You can read more about tidycensus and how to register and use your API key here: https://walker-data.com/tidycensus/articles/basic-usage.html
+
+NOTE, you can use your API key using the following command ```census_api_key("YOUR API KEY GOES HERE")```. BUT YOU SHOULD **NOT** INCLUDE THAT COMMAND IN YOUR R SCRIPT. I want to be VERY clear - if you put your API in the R script and then publish the code (e.g., to GitHub), someone else can use your API key. You do NOT want that. Instead, use the command in the console, and ```tidycensus``` will write the API key to your R Environmental variables file.
+
+## Introduction
+
+In this lab, we will be calculating the spatial autocorrelation of various Census variables across a subset of the US. Will be using the ```tidycensus``` pacakge to download data, and we will also be using a new package called ```spdep``` in this assignment.
+
+
+We begin by loading the relevant packages and data
+
+```{r packages, echo=TRUE, message = TRUE}
+library(spdep)
+library(tidycensus)
+library(sf)
+library(tidyverse)
+library(tmap)
+```
+
+
+The tidycenus packages uses an Application Programming Interface, or API, to download data directly from the US Census and then process into an R-friendly data structure.
+
+First, let's use tidycensus to download data for all US states. Review the ```get_acs``` documentation to understand what parameters are available to you and what they do.
+
+```{r data, echo=TRUE, message = TRUE}
+
+options(tigris_use_cache = TRUE) # cache geometry so you don't dl unnecessarily
+
+d.all <- get_acs(geography = "county", 
+                      table = "B15003",
+                      output = "wide", 
+                      geometry = T, 
+                      year = 2020)
+
+glimpse(d.all)
+
+#tmap::tm_shape(d.all) + tm_polygons() # commented out because 
+#it's a large dataset that takes a long time to plot, but you should try it
+
+```
+
+The above code, we downloaded the `B15003` table. Where you see the a variable noted with an `E`, that's the estimate. An `M` indicates the Margin of Error for that estimate. 
+
+But a tricky thing about using ```tidycensus``` is that you need to know which table and variables you want to download ahead of time, and there are a LOT of data in the Census database. Conveniently, there is a way to download the variables so that we can download just what we want.
+
+```{r get_census_variables, echo = T, message = T}
+df.vars <- load_variables(2020, "acs5", cache = T)
+
+glimpse(df.vars)
+
+```
+
+You can review, search, and filter those data to find any number of variables. But for the purpose of this lab, let's find the variable the corresponds to the estimate for the female population that is 75-79 years old. There are many ways we can do this, so let's explore
+
+```{r searching_vars, echo = T, message = T}
+
+df.vars %>% dplyr::filter(concept == "SEX BY AGE") %>% 
+  # If you break the chain here, you'll see a group of vars
+  dplyr::filter(str_detect(label, "Female")) %>% # narrow to Female estimates
+  dplyr::filter(str_detect(label, "75")) ## then to the variable we want
+
+```
+
+Now that we know the variable of interest, we can either download JUST that variable, or we can download the whole table. In the above example, the table is `B01001` and the variable number is `047`. It's usually easier to download the whole table in case you want other variables as well (and you often do), but either way works.
+
+
+```{r all_data, echo = T, message = T}
+d.sex.by.age <- get_acs(geography = "county", 
+                      table = "B01001",
+                      output = "wide", 
+                      geometry = T, 
+                      year = 2020)
+
+glimpse(d.sex.by.age)
+```
+
+
+That's a lot of data, so we need to create a subset we can work with later. Let's use the GEOID to identify the state and create a dataset with only those counties in Ohio. 
+
+```{r make_subset, echo=TRUE, message = TRUE}
+
+# get just Ohio
+ohio <- d.sex.by.age %>% 
+  mutate(., STATEID = stringr::str_sub(GEOID, 1, 2)) %>% 
+  # Take a second and think through what the above line is doing
+  dplyr::filter(STATEID == "39")
+
+
+# map it to verify
+tmap::tm_shape(ohio) + tm_polygons()
+
+```
+
+Next, we'll formalize our space by creating neighbors, and thus, **W**
+
+- First we'll project
+- Next, we'll use Queen contiguity to define **W**
+
+```{r make some neighbors, echo=TRUE, message = TRUE}
+
+# Check it first
+sf::st_crs(ohio) 
+
+# then reproject to north american equidistant conic
+ohio.projected <- ohio %>% sf::st_transform(., "ESRI:102010")
+
+# plot it again to make sure nothing broke
+tmap::tm_shape(ohio.projected) + tm_polygons()
+
+# make the neighborhood
+nb <- spdep::poly2nb(ohio.projected, queen = TRUE)
+
+nb
+
+```
+
+For each polygon in our polygon object, ```nb``` lists all neighboring polygons. For example, to see the neighbors for the first polygon in the object, type:
+
+```{r checktheneighbors, echo = TRUE, message = TRUE}
+nb[[1]]
+```
+
+Polygon 1 has three neighbors. The numbers represent the polygon IDs as stored in the spatial object ```ohio.projected```. Polygon 1 is associated with the `NAME` attribute name `"Erie County"` and its  neighboring polygons are associated with the counties:
+
+```{r check names, echo = TRUE, message = TRUE}
+ohio.projected$NAME[1] # county in index 1
+
+nb[[1]] %>% ohio.projected$NAME[.] # and it's neighbors. 
+# Note we're doing this programmatically step-by-step
+```
+
+Next, we need to assign weights to each neighboring polygon. In our case, each neighboring polygon will be assigned equal weight `(style="W")`. This is accomplished by assigning the fraction: `1 / ( # of neighbors)`  to each neighboring county then summing the weighted  values. While this is the most intuitive way to summaries the neighbors’ values it has one drawback in that polygons along the edges of the study area will base their lagged values on fewer polygons thus potentially over- or under-estimating the true nature of the spatial autocorrelation in the data. For this example, we’ll stick with the `style="W"` option for simplicity’s sake but note that other more robust options are available, notably `style="B"`.
+
+
+```{r make weights, echo = TRUE, message = TRUE}
+lw <- spdep::nb2listw(nb, style="W", zero.policy=TRUE)
+```
+
+The ```zero.policy=TRUE``` option allows for lists of non-neighbors. This should be used with caution since the user may not be aware of missing neighbors in their dataset. However, a zero.policy of `FALSE` would return an error if you have a dataset where a polygon does not have a neighbor.
+
+To see the weight of the first polygon’s four neighbors type:
+
+```{r checkit, echo = TRUE, message = TRUE}
+lw$weights[1]
+```
+
+This row-normalized our weights!
+
+We can also plot the distribution of neighbors across the dataset. 
+
+```{r plotneighbors, echo = TRUE, message = TRUE}
+# use attr to get the count of neighbors in W
+neighbors <- attr(lw$weights,"comp")$d 
+
+# plot it
+hist(neighbors)
+
+```
+
+
+Finally, we’ll compute the average neighbor population of Females 75-79 years of age for each polygon. These values are often referred to as spatially lagged values. The following table shows the average neighboring F 75-79 values (stored in the F75.lag object) for each county. Note, I determined the correct attribute (variable 47 from table B01001) by reading the metadata from the following link: https://www.census.gov/programs-surveys/acs/technical-documentation/table-shells.2020.html#list-tab-79594641 .
+
+
+```{r laggedVar, echo = TRUE, message = TRUE}
+F75.lag <- lag.listw(lw, ohio.projected$B01001_047E)
+F75.lag
+```
+
+### Computing Moran's I
+
+
+To get the Moran’s I value, simply use the moran.test function.
+
+```{r morantest, echo = TRUE, message = TRUE}
+moran.test(ohio.projected$B01001_047E, lw)
+```
+
+Note that the p-value computed from the `moran.test` function is not computed from an MC simulation but **analytically** instead. This may not always prove to be the most accurate measure of significance. To test for significance using the MC simulation method instead, use the moran.mc function.
+
+
+### Moran's plots
+
+Thus far, our analysis has been a global investigation of spatial autocorrelation. We can also use local indicators of spatial autocorrelation (LISA) to analyze our dataset. One way of doing so is through the use of a Moran plot.
+
+The process to make a plot is relatively simple:
+
+```{r moranplot, echo = TRUE, message = TRUE}
+# use zero.policy = T because some polygons don't have neighbors
+moran.plot(ohio.projected$B01001_047E, lw, zero.policy=TRUE, plot=TRUE)
+```
+
+
+
+## Your tasks
+
+1. Create a spatial subset of the US, with at AT MINIMUM 4 states, MAXIMUM 7 states. States must be contiguous. 
+
+2. Choose a variable. If it's a raw count, you should normalize the variable in an appropriate manner (e.g., by total population, percent, by area)
+
+3. Make a histogram of your chosen variable
+
+4. Make a choropleth map of your chosen variable. Choose an appropriate data classiﬁcation scheme
+
+5. Develop a contiguity-based spatial weights matrix of your choosing (i.e., rook or queen)
+
+    5.1. Row-standardize the W
+    
+    5.2. Plot a histogram of the number of neighbors
+  
+    5.3. Calculate the average number of neighbors
+  
+    5.4. Make a Moran Plot
+
+6. Repeat #5 (and 5.1 - 5.4) above with a W developed using the IDW method. You will need to investigate the `spdep` documentation to find the correct method/function.
+
+
+## Questions:
+
+1. Describe in your own words how Moran’s I is calculated
+
+2. Describe in your own words: what is a spatially-lagged variable?
+
+3. How does your analysis in this lab (as simple as it is) differ by how you have formalized W (e.g., space, neighbors) in two diﬀerent methods? How might it affect analysis?
+
+4. What does it mean if an observation falls in the “H-L” quadrant? Why might it be useful to detect such occurances?
+
+
+## Bonus (+30 points)
+
+B1. make another Moran plot, this time do so manually (use `geom_point` from `ggplot`). You must label each quadrant with HH, HL, LL, and LH, respectively. You should also use color and/or shape to denote whether an observation is statistically significant. Tip, you can find the data you want using the ```moran.plot``` function, but you'll have to alter the function call and read some documentation.
+
+B2. plot a choropleth map of your dataset with a categorical color scheme, where the shading corresponds to the Moran plot (really, “LISA”) quadrants. Thus, your map will have four shades of color.

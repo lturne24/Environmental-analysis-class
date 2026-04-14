@@ -1,0 +1,56 @@
+---
+title: "raster generation and interpolation"
+output: html_notebook
+---
+
+```{r}
+library(sf)
+library(terra)
+library(tidyterra) # this makes manipulating the vect object easier later
+library(sp)
+library(tmap)
+library(spData) # new package - you'll likely need to install
+library(gstat) # need for IDW
+library(tidyverse)
+```
+
+Grab some data from `spData`
+```{r}
+
+# this is the raster I'm sampling from
+nz_elev = rast(system.file("raster/nz_elev.tif", package = "spDataLarge"))
+
+# create some random points, then get rid of the NA values, 
+# becuase idw doesn't like them
+sample.pts <- spatSample(nz_elev, 10000, xy=T, replace = T, as.points = T) %>%
+  tidyterra::filter(., !is.na(elevation))
+  
+
+```
+
+
+```{r}
+# this is just to indicate we're using the origianl raster as a template for the IDW
+r_template <- nz_elev
+
+```
+
+```{r}
+# Convert to Spatial for gstat (required by gstat::idw)
+sp_points <- as(sample.pts, "Spatial")
+
+# Create empty raster grid for interpolation
+grid <- as.data.frame(xyFromCell(r_template, 1:ncell(r_template)))
+sp::coordinates(grid) <- ~ x + y
+gridded(grid) <- TRUE
+proj4string(grid) <- proj4string(sp_points)
+
+# Interpolate using gstat::idw
+idw_result <- idw(elevation ~ 1, sp_points, newdata = grid, idp = 2)
+
+# Convert to terra raster
+idw_raster <- rast(idw_result)
+```
+
+
+
