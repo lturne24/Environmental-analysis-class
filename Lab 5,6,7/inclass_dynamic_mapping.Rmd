@@ -296,6 +296,11 @@ m.both
 1. Use a custom icon for the dam layer
 2. Add a control to the interface to change the base map
 
+
+providers$Stadia.StamenToner
+
+providers$Esri.NatGeoWorldMap
+
 ```{r}
 library(sf)
 library(leaflet)
@@ -307,63 +312,47 @@ counties <- sf::read_sf("./CBW/County_Boundaries.shp") %>% sf::st_make_valid()
 stations <- sf::read_sf("./CBW/Non-Tidal_Water_Quality_Monitoring_Stations_in_the_Chesapeake_Bay.shp")
 dams <- sf::read_sf("./CBW/Dam_or_Other_Blockage_Removed_2012_2017.shp") %>% sf::st_make_valid()
 
-# Base map
 G2 <- leaflet() %>%
-  setView(lng = -77.34, lat = 38.65, zoom = 7) %>%
+  setView(lng = -77.3, lat = 38.6, zoom = 7) %>%
   addProviderTiles(providers$Esri.NatGeoWorldMap, group = "NatGeo") %>%
   addPolygons(
     data = counties,
     color = "black",
     weight = 1,
     fill = FALSE,
-    group = "Counties"
-  ) %>%
-  
-  # -------------------------
-  # Monitoring stations
-  # size = Drainage Area
-  # -------------------------
+    group = "Counties")%>%
+ ##adds drainage area  
   addCircleMarkers(
     data = stations,
-    radius = ~sqrt(Drainage_Area) / 10,  # scale (adjust if needed)
+    radius = ~sqrt(Drainage_A) / 10, 
     fillColor = "blue",
     fillOpacity = 0.5,
     color = "blue",
     stroke = TRUE,
     weight = 1,
     group = "Monitoring Stations",
-    popup = ~paste("Drainage Area:", Drainage_Area)
-  ) %>%
-  
-  # -------------------------
-  # Dam removals
-  # colored by year
-  # -------------------------
-  addCircleMarkers(
-    data = dams,
-    radius = 5,
-    fillColor = ~colorNumeric(
-      palette = "YlOrRd",
-      domain = dams$Year_Removed
-    )(Year_Removed),
-    fillOpacity = 0.8,
-    color = "black",
-    weight = 1,
-    group = "Dam Removals",
-    popup = ~paste("Year Removed:", Year_Removed)
-  ) %>%
-  
-  # -------------------------
-  # Layer controls
-  # -------------------------
-  addLayersControl(
-    baseGroups = c("NatGeo"),
-    overlayGroups = c("Counties", "Monitoring Stations", "Dam Removals"),
-    options = layersControlOptions(collapsed = FALSE)
-  )
+    popup = ~paste("Drainage Area:", Drainage_A)) %>%
+  #year dams removed
+addCircleMarkers(
+  data = dams,
+  radius = 5,
+  fillColor = ~colorNumeric(
+    palette = "YlOrRd",
+    domain = dams$DamRemoval
+  )(DamRemoval),
+  fillOpacity = 0.8,
+  color = "black",
+  weight = 1,
+  group = "Dam Removals",
+  popup = ~paste("Year Removed:", DamRemoval)) %>%
+  #make so toggle layers 
+addLayersControl(
+  baseGroups = c("NatGeo"),
+  overlayGroups = c("Counties", "Monitoring Stations", "Dam Removals"),
+  options = layersControlOptions(collapsed = FALSE))
 
-# Print map
 G2
+
 ```
 
 
