@@ -1,0 +1,28 @@
+{
+    "id": "BEB2062A",
+    "path": null,
+    "project_path": null,
+    "type": "object_explorer",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1776346122196.0,
+    "source_on_save": false,
+    "relative_order": 6,
+    "properties": {
+        "id": "b19c0b795d88487aa4c9ef1db3381fad",
+        "name": "damAwesomeIcon",
+        "title": "damAwesomeIcon",
+        "language": "R",
+        "source_window_id": "",
+        "Source": "Source"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 0,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1776346122196,
+    "read_only": false,
+    "read_only_alternatives": []
+}

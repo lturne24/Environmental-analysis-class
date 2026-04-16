@@ -1,0 +1,4 @@
+"0","parks <- sf::read_sf(""../KSU_spatial_data_sci_R-main-4/data/static_mapping/oh_parks.gpkg"") %>%"
+"0","  sf::st_transform(., ""EPSG:4326"") # transform to WGS84 to make Leaflet happy"
+"2","Error: Cannot open ""../KSU_spatial_data_sci_R-main-4/data/static_mapping/oh_parks.gpkg""; The file doesn't seem to exist.
+"

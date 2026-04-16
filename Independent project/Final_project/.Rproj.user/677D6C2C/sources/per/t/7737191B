@@ -11,14 +11,17 @@
     "relative_order": 1,
     "properties": {
         "source_window_id": "",
-        "Source": "Source"
+        "Source": "Source",
+        "docOutlineVisible": "1",
+        "cursorPosition": "645,10",
+        "scrollLine": "0"
     },
-    "folds": "",
+    "folds": "145|20|179|0|\n180|75|182|0|\n183|22|203|0|\n204|24|225|0|\n226|20|249|0|\n250|20|271|0|\n272|28|294|0|\n295|28|317|0|\n318|23|340|0|\n341|22|364|0|\n365|12|386|0|\n387|22|388|0|\n389|22|415|0|\n416|23|442|0|\n443|21|467|0|\n468|20|492|0|\n493|28|518|0|\n519|28|543|0|\n544|24|567|0|\n568|22|592|0|\n593|12|617|0|\n",
     "lastKnownWriteTime": 1775681337,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1775681337,
+    "last_content_update": 1776295519875,
     "read_only": false,
     "read_only_alternatives": []
 }
