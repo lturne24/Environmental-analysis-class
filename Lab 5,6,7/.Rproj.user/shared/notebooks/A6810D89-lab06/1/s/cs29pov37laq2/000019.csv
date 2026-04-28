@@ -1,0 +1,23 @@
+"0","# your code here"
+"0","counties <- sf::read_sf(""./CBW/County_Boundaries.shp"") %>% sf::st_make_valid()"
+"0","dams <- sf::read_sf(""./CBW/Dam_or_Other_Blockage_Removed_2012_2017.shp"") %>% sf::st_make_valid()"
+"0","streams <- sf::read_sf(""./CBW/Streams_Opened_by_Dam_Removal_2012_2017.shp"") %>% sf::st_make_valid()"
+"0","bmps <- read_csv(""./CBW/BMPreport2016_landbmps.csv"")"
+"2","[1mRows: [22m[34m69601[39m [1mColumns: [22m[34m18[39m"
+"2","[36m──[39m [1mColumn specification[22m [36m─────────────────────────────────────────────────────────────────────────────────────────────────────────────[39m
+[1mDelimiter:[22m "",""
+[31mchr[39m (11): StateAbbreviation, GeographyName, Geography, Agency, BMPShortName, BMP, BMPType, Unit, Sector, FromLoadSource, ToLoadSo...
+[32mdbl[39m  (7): AmountSubmitted, AmountBackedOut, AmountNotBackedOut, AmountCredited, Excess, TotalAmountCredited, Cost"
+"2","
+[36mℹ[39m Use `spec()` to retrieve the full column specification for this data.
+[36mℹ[39m Specify the column types or set `show_col_types = FALSE` to quiet this message."
+"0","bmps_clean <- bmps %>% group_by(Geography) %>%"
+"0","  summarise(total_cost = sum(Cost, na.rm = TRUE))"
+"0",""
+"0","bmps_clean <- bmps_clean %>%"
+"0","  mutate(Geography = gsub(""\\s*\\(.*\\)"", """", Geography),"
+"0","    Geography = sub("",.*"", """", Geography))"
+"0",""
+"0","counties_bmp <- counties %>% left_join(bmps_clean, by = c(""NAME10"" = ""Geography""))"
+"2","Warning: Detected an unexpected many-to-many relationship between `x` and `y`."
+"0","counties_bmp <- st_transform(counties_bmp, 4326)"

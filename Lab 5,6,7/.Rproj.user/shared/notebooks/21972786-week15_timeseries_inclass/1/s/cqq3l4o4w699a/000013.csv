@@ -1,0 +1,4 @@
+"0","flow_monthly %>%"
+"0","  feasts::ACF(mean_flow, lag_max = 36) %>%"
+"0","  as_tibble() %>%"
+"0","  filter(as.numeric(lag) %in% c(1, 12, 24, 36))"

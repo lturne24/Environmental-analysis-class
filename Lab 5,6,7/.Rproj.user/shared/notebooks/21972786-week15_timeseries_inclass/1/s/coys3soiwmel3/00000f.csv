@@ -1,0 +1,7 @@
+"0","fit %>%"
+"0","  fabletools::augment() %>%"
+"0","  as_tibble() %>%"
+"0","  mutate(abs_resid = abs(.resid)) %>%"
+"0","  arrange(desc(abs_resid)) %>%"
+"0","  select(ym, mean_flow, .fitted, .resid) %>%"
+"0","  head(10)"

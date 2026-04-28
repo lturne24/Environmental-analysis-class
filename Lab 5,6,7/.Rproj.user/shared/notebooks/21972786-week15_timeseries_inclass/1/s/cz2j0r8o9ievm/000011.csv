@@ -1,0 +1,7 @@
+"0","flow_monthly <- flow_clean %>%"
+"0","  dplyr::mutate(ym = tsibble::yearmonth(Date)) %>%"
+"0","  dplyr::group_by(ym) %>%"
+"0","  dplyr::summarise(mean_flow = mean(Flow, na.rm = TRUE)) %>%"
+"0","  tsibble::as_tsibble(index = ym)"
+"0",""
+"0","flow_monthly"

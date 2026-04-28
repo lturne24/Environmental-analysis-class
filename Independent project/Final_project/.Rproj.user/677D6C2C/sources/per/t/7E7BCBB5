@@ -3,7 +3,7 @@
     "path": "~/Documents/GitHub/Environmental-analysis-class/Independent project/Final_project/Metal data.R",
     "project_path": "Metal data.R",
     "type": "r_source",
-    "hash": "596729179",
+    "hash": "23410768",
     "contents": "",
     "dirty": false,
     "created": 1776212574454.0,
@@ -12,15 +12,15 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "28,0",
-        "scrollLine": "24"
+        "cursorPosition": "98,7",
+        "scrollLine": "76"
     },
-    "folds": "100|7|119|0|\n120|12|138|0|\n139|9|157|0|\n158|7|181|0|\n",
-    "lastKnownWriteTime": 1776295603,
+    "folds": "98|7|117|0|\n118|12|136|0|\n137|9|155|0|\n156|7|179|0|\n",
+    "lastKnownWriteTime": 1777053754,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1776295603883,
+    "last_content_update": 1777063027930,
     "read_only": false,
     "read_only_alternatives": []
 }

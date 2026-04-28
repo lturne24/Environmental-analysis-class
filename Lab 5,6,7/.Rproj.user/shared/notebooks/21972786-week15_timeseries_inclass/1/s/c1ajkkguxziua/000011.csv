@@ -1,0 +1,3 @@
+"0",""
+"0","# First 12 months of the forecast"
+"0","fc %>% as_tibble() %>% select(ym, .mean) %>% head(12)"

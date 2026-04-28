@@ -47,7 +47,7 @@ summary(Iron_2018_2019$DetectionQuantitationLimitMeasure.MeasureValue.Clean.UGL)
 summary(Manganese_2018_2019$DetectionQuantitationLimitMeasure.MeasureValue.Clean.UGL)
 summary(Nickel_2018_2019$DetectionQuantitationLimitMeasure.MeasureValue.Clean.UGL)
 summary(Zinc_2018_2019$DetectionQuantitationLimitMeasure.MeasureValue.Clean.UGL)
-#filter out low metals (below 10ugL)----
+#filter out low metals (lit based----
 
 Iron_low <- Iron_2018_2019 %>%
   filter(DetectionQuantitationLimitMeasure.MeasureValue.Clean.UGL < 10)
@@ -73,10 +73,8 @@ Nickel_low$HUCEightDigitCode <- as.character(Nickel_low$HUCEightDigitCode)
 Zinc_low$HUCEightDigitCode <- as.character(Zinc_low$HUCEightDigitCode)
 
 metals_low <- dplyr::bind_rows(
-  Iron_low,
-  Manganese_low,
-  Nickel_low,
-  Zinc_low)
+  Iron_low, Manganese_low,
+  Nickel_low, Zinc_low)
 
 
 #map all them metals ----

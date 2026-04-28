@@ -1,0 +1,11 @@
+"0","#task 5----"
+"0","##5.1 "
+"0","data_proj <- st_transform(data_subset, ""ESRI:102010"")"
+"0","nb <- poly2nb(data_proj, queen = TRUE)"
+"2","Warning: neighbour object has 2 sub-graphs;
+if this sub-graph count seems unexpected, try increasing the snap argument."
+"0","lw <- nb2listw(nb, style = ""W"", zero.policy = TRUE)"
+"0",""
+"0","##task 5.2"
+"0","neighbors <- attr(lw$weights, ""comp"")$d"
+"0","hist(neighbors, main = ""Neighbor Count"")"

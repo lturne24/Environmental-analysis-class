@@ -1,0 +1,6 @@
+"0","flow_monthly %>%"
+"0","  ggtime::gg_subseries(mean_flow) +"
+"0","  labs("
+"0","    title = ""Subseries Plot — Monthly Mean Streamflow"","
+"0","    y     = ""Mean Discharge (cfs)"""
+"0","  )"

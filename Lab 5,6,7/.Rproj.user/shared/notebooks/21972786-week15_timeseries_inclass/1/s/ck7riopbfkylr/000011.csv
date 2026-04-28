@@ -1,0 +1,6 @@
+"0","flow_monthly %>%"
+"0","  as_tibble() %>%"
+"0","  mutate(year = lubridate::year(ym)) %>%"
+"0","  group_by(year) %>%"
+"0","  summarise(annual_mean = mean(mean_flow, na.rm = TRUE)) %>%"
+"0","  arrange(desc(annual_mean))"

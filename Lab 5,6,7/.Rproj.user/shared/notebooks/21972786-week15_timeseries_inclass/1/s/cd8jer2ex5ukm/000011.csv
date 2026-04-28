@@ -1,0 +1,6 @@
+"0","flow_monthly %>%"
+"0","  ggtime::gg_season(mean_flow, labels = ""both"") +"
+"0","  labs("
+"0","    title = ""Seasonal Plot — Monthly Mean Streamflow"","
+"0","    y     = ""Mean Discharge (cfs)"""
+"0","  ) + theme_minimal()"

@@ -1,0 +1,4 @@
+"0","flow_ts <- flow_clean %>%"
+"0","  tsibble::as_tsibble(index = Date)"
+"0",""
+"0","flow_ts"

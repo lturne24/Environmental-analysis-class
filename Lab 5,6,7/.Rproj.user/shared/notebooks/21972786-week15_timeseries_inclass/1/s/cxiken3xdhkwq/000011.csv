@@ -1,0 +1,4 @@
+"0","flow_monthly %>%"
+"0","  feasts::ACF(mean_flow, lag_max = 36) %>%"
+"0","  feasts::autoplot() +"
+"0","  labs(title = ""Autocorrelation Function — Monthly Mean Streamflow"")"

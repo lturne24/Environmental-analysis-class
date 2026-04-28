@@ -1,0 +1,7 @@
+"0","library(tidyverse)"
+"0","library(dataRetrieval)  # USGS water data"
+"0","library(tsibble)        # tidy time series data structure"
+"0","library(feasts)         # decomposition + ACF"
+"0","library(ggtime)         # time series visualization (split from feasts 0.4.2)"
+"0","library(fable)          # forecasting models"
+"0","library(lubridate)"

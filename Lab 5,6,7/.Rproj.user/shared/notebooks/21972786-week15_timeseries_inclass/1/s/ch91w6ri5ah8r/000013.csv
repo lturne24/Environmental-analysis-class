@@ -1,0 +1,13 @@
+"0","site_no      <- ""04208000""   # Cuyahoga River at Independence, OH"
+"0","parameter_cd <- ""00060""      # discharge, in cubic feet per second (cfs)"
+"0",""
+"0","raw_flow <- dataRetrieval::readNWISdv("
+"0","  siteNumbers = site_no,"
+"0","  parameterCd = parameter_cd,"
+"0","  startDate   = ""2000-01-01"","
+"0","  endDate     = ""2023-12-31"""
+"0",")"
+"2","Warning: NWIS servers are slated for decommission. Please begin to migrate to read_waterdata_daily."
+"2","GET: https://waterservices.usgs.gov/nwis/dv/?site=04208000&format=waterml%2C1.1&ParameterCd=00060&StatCd=00003&startDT=2000-01-01&endDT=2023-12-31
+"
+"0","head(raw_flow)"

@@ -1,0 +1,3 @@
+"0",""
+"0","#figure out what level of ecoreigon to use "
+"0","HNLC_data %>% summarise(num_ecoregions = n_distinct(AG_ECO9_NM))"

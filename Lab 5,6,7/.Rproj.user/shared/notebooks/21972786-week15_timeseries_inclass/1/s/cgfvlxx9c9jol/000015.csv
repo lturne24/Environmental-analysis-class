@@ -1,0 +1,7 @@
+"0","# The package has a helper to rename columns to something readable"
+"0","flow_clean <- raw_flow %>%"
+"0","  dataRetrieval::renameNWISColumns() %>%"
+"0","  dplyr::select(Date, Flow) %>%"
+"0","  dplyr::filter(!is.na(Flow))"
+"0",""
+"0","head(flow_clean)"

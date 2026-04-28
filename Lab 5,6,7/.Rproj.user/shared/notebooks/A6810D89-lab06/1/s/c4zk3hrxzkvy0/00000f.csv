@@ -1,0 +1,8 @@
+"0","# your code here"
+"0","# example structure:"
+"0","# pal_lisa <- colorFactor(palette = c(...), levels = c(""HH"", ""HL"", ""LH"", ""LL""))"
+"0",""
+"0","pal_lisa <- colorFactor("
+"0","  palette = c(""red"",""purple"",""orange"",""blue"",""grey""),"
+"0","  levels = c(""HH"",""LL"",""HL"",""LH"",""Not Significant""))"
+"0",""

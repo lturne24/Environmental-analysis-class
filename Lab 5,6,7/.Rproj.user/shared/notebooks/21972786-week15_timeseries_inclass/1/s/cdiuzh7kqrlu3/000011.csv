@@ -1,0 +1,2 @@
+"0","# The seasonal coefficients — all relative to the reference month"
+"0","tidy(fit) %>% filter(stringr::str_detect(term, ""season""))"

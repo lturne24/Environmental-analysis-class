@@ -1,0 +1,6 @@
+"0","fit <- flow_monthly %>%"
+"0","  fabletools::model("
+"0","    tslm = fable::TSLM(mean_flow ~ trend() + season())"
+"0","  )"
+"0",""
+"0","tidy(fit)"

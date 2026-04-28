@@ -1,0 +1,16 @@
+"0","fit_both <- flow_monthly %>%"
+"0","  fabletools::model("
+"0","    tslm  = fable::TSLM(mean_flow ~ trend() + season()),"
+"0","    arima = fable::ARIMA(mean_flow)"
+"0","  )"
+"2","Warning: 1 error encountered for arima
+[1] The `urca` package must be installed to use this functionality. It can be installed with install.packages(""urca"")
+"
+"0","fit_both %>%"
+"0","  fabletools::forecast(h = ""2 years"") %>%"
+"0","  fabletools::autoplot(flow_monthly, level = NULL) +"
+"0","  labs("
+"0","    title = ""TSLM vs. ARIMA Forecast — Monthly Mean Streamflow"","
+"0","    y     = ""Mean Discharge (cfs)"","
+"0","    x     = NULL"
+"0","  )"

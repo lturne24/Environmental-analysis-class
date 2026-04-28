@@ -1,0 +1,7 @@
+"0","flow_monthly %>%"
+"0","  feasts::autoplot(mean_flow) +"
+"0","  labs("
+"0","    title = ""Monthly Mean Streamflow — Cuyahoga River at Independence, OH"","
+"0","    y     = ""Mean Discharge (cfs)"","
+"0","    x     = NULL"
+"0","  )"

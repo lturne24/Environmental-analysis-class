@@ -640,6 +640,13 @@ byECO9_HNLChlorophyll_sites <- dplyr::bind_rows(
   HNLChlorophyll_sites_list_XER
 )
 
+byECO9_HNLChlorophyll_sites <- byECO9_HNLChlorophyll_sites %>%
+  left_join(
+    HNLC_data %>% select(SITE_ID, COMID, HUC8),
+    by = "SITE_ID")
+
+byECO9_HNLChlorophyll_sites <- byECO9_HNLChlorophyll_sites %>%
+  mutate(HUC8_clean = sub("^H", "", HUC8))
 
 #Mapping by eco 9 region ----
 #chlorophyll map by eco region 

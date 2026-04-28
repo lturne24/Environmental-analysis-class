@@ -1,0 +1,29 @@
+"0","waterchem <- read.csv(""./data/River_stream_18_19_water_chemistry_data.csv"")"
+"0","chlorophyll <- read.csv(""./data/River_stream_18_19_water_chlorophyll_a.csv"")"
+"0","SiteInfo <- read.csv(""./data/River_stream_18_19_siteInfo_data.csv"")"
+"0","Landscape <- read_csv(""data/River_stream_18_19_Landscape.csv"")"
+"2","[1mRows: [22m[34m1919[39m [1mColumns: [22m[34m721[39m"
+"2","[36m──[39m [1mColumn specification[22m [36m───────────────────────────────────────────────────────────────────────────────────────────[39m
+[1mDelimiter:[22m "",""
+[31mchr[39m  (10): PUBLICATION_DATE, SITE_ID, UNIQUE_ID, AG_ECO9, DRAINAGEID, GEOL_HUNT_DOM_WS, GEOL_REEDBUSH_DOM_WS, G...
+[32mdbl[39m (711): AG2006HISLP_WS_PCTFULL, AG2006MIDSLP_WS_PCTFULL, AGKFFACT_WS_PCTFULL, AGKFFACTWS, AL2O3_WS_PCTFULL, ..."
+"2","
+[36mℹ[39m Use `spec()` to retrieve the full column specification for this data.
+[36mℹ[39m Specify the column types or set `show_col_types = FALSE` to quiet this message."
+"0","us_states <- map_data(""state"")"
+"0","Iron <- read.csv(""./data/Iron_aggregated_high_quality_start2000_cleaned.csv"")"
+"0","Manganese <- read.csv(""./data/Manganese_aggregated_high_quality_start2000_cleaned.csv"")"
+"0","Nickel <- read.csv(""./data/Nickel_aggregated_high_quality_start2000_cleaned.csv"")"
+"0","Zinc <- read_csv(""data/Zinc_aggregated_high_quality_start2000_cleaned.csv"")"
+"2","[1mRows: [22m[34m644415[39m [1mColumns: [22m[34m24[39m"
+"2","[36m──[39m [1mColumn specification[22m [36m───────────────────────────────────────────────────────────────────────────────────────────[39m
+[1mDelimiter:[22m "",""
+[31mchr[39m  (10): CharacteristicName, HorizontalCollectionMethodName, HorizontalCoordinateReferenceSystemDatumName, Re...
+[32mdbl[39m   (6): lat.Clean, lon.Clean, MW, DetectionQuantitationLimitMeasure.MeasureValue.Clean.UGL, COMID, StreamOrde
+[33mlgl[39m   (7): flag_coord_consensus, flag_coord_recency, flag_mli_consolidated, flag_dl_recovered, flag_value_avera...
+[34mdate[39m  (1): ActivityStartDate"
+"2","
+[36mℹ[39m Use `spec()` to retrieve the full column specification for this data.
+[36mℹ[39m Specify the column types or set `show_col_types = FALSE` to quiet this message."
+"0","us_states <- map_data(""state"")"
+"0",""

@@ -1,0 +1,7 @@
+"0","n_months <- nrow(flow_monthly)"
+"0","significance_threshold <- 2 / sqrt(n_months)"
+"0","significance_threshold"
+"1","[1]"
+"1"," 0.1178511"
+"1","
+"

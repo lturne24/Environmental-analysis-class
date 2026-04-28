@@ -1,0 +1,7 @@
+"0","# Residual plot for ARIMA"
+"0","fit_arima %>%"
+"0","  fabletools::augment() %>%"
+"0","  ggplot(aes(x = ym, y = .resid)) +"
+"0","  geom_line() +"
+"0","  geom_hline(yintercept = 0, linetype = ""dashed"", color = ""red"") +"
+"0","  labs(title = ""ARIMA Residuals"", y = ""Residual (cfs)"", x = NULL)"

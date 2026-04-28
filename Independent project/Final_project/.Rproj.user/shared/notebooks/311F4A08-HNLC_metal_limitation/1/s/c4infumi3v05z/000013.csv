@@ -1,0 +1,8 @@
+"0","dunnTest(NTL_RESULT ~ AG_ECO9, data = HNLC_data, method = ""bh"")"
+"2","Warning: AG_ECO9 was coerced to a factor."
+"2","Warning: Some rows deleted from 'x' and 'g' because missing data."
+"2","Dunn (1964) Kruskal-Wallis multiple comparison
+"
+"2","  p-values adjusted with the Benjamini-Hochberg method.
+
+"

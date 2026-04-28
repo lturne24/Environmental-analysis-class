@@ -1,0 +1,7 @@
+"0","fit_arima <- flow_monthly %>%"
+"0","  fabletools::model("
+"0","    arima = fable::ARIMA(mean_flow)"
+"0","  )"
+"2","Warning: 1 error encountered for arima
+[1] The `urca` package must be installed to use this functionality. It can be installed with install.packages(""urca"")
+"

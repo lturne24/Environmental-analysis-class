@@ -1,0 +1,8 @@
+"0","flow_ts %>%"
+"0","  feasts::autoplot(Flow) +"
+"0","  labs("
+"0","    title = ""Daily Streamflow — Cuyahoga River at Independence, OH"","
+"0","    y     = ""Discharge (cfs)"","
+"0","    x     = ""year"""
+"0","  ) +"
+"0","    theme_minimal() # see how you can add ggplot ""stuff""?"

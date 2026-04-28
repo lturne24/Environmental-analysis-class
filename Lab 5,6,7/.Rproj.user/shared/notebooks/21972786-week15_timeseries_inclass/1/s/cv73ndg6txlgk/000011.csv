@@ -1,0 +1,3 @@
+"0","# Pull the trend coefficient and express it as monthly and annual change"
+"0","trend_coef <- tidy(fit) %>% filter(term == ""trend()"")"
+"0","trend_coef"
