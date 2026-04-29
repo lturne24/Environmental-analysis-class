@@ -33,7 +33,7 @@
 "0","                                             by = c(""SITE_ID"",""VISIT_NO"",""DATE_COL""))"
 "0","combined_data <- combined_data %>% left_join(chlorophyll_clean,"
 "0","                                             by = c(""SITE_ID"",""VISIT_NO"",""DATE_COL""))"
-"0","#THE BIG DADDY OF DATA SETS "
+"0","#THE BIG DADDY OF DATA SETS"
 "0","HNLC_data <- combined_data"
 "0",""
 "0","#removes negative values (not possible)"

@@ -86,7 +86,7 @@ combined_data <- combined_data %>% left_join(waterchem_clean,
                                              by = c("SITE_ID","VISIT_NO","DATE_COL"))
 combined_data <- combined_data %>% left_join(chlorophyll_clean,
                                              by = c("SITE_ID","VISIT_NO","DATE_COL"))
-#THE BIG DADDY OF DATA SETS 
+#THE BIG DADDY OF DATA SETS
 HNLC_data <- combined_data
 
 #removes negative values (not possible)
