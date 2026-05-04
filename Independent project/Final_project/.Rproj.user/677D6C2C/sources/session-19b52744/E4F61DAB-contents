@@ -1,0 +1,254 @@
+---
+title: "Graphing Lab"
+author: "NAME HERE"
+date: "May 3rd, 2024"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+## [Chunk 1] Import data, descriptive stats, create subsets
+Here we are loading the 3 packages you'll need for graphing (dplyr for summarizing data, ggplot2 for plotting, viridis for colorblind friendly palettes) and installing/loading the data you will need for this plotting exercise.
+
+If you haven't installed these packages before, install them from the "Packages" tab.
+```{r}
+#loading in package for graphing
+library(dplyr)
+library(ggplot2)
+library(viridis)
+
+#Installing and loading package with data that was made available by the Palmer Station, Antarctica LTER (Long Term Ecological Research Network)
+library(palmerpenguins)
+
+#Summary table of the loaded data
+summary(penguins)
+
+```
+
+
+## [Chunk 2] Summarizing data for plotting means in a bar chart
+To make barplots in base and ggplot you need to first make a summary table of the means and standard error that you will be plotting. This code groups the data by a categorical variable and then calculates averages and standard deviations across those groups.
+
+This function uses the library dplyr which is a package used to manipulate dataframes. The functions we will use are similar to the function tapply, which we have used before, but puts everything into neat, usable dataframe. Don't worry too much about how it works, it will get your the mean and standard deviation of your categories: 
+
+```{r}
+#Mean and sd bill length by species
+penguin_summary_sp <- penguins%>%
+  group_by(species)%>% #grouping data by species
+  summarize(mean_bill_length= mean(bill_length_mm,na.rm=TRUE),
+            sd_bill_length= sd(bill_length_mm,na.rm=TRUE)) #calculate mean and st dev of bill length
+
+#Mean and sd bill length by species & sex
+penguin_summary_sp_sex <- penguins%>%
+    filter(sex!="NA")%>% #drops the NAs
+  group_by(species, sex)%>% #group by species and sex
+  summarize(mean_bill_length= mean(bill_length_mm,na.rm=TRUE),
+            sd_bill_length= sd(bill_length_mm,na.rm=TRUE))
+```
+
+
+
+# Bar plots
+## Bar plots in base R
+First, we will plot this the same way we have all semester. We will plot average bill lengths by species of penguin. 
+
+### [Chunk 3] Penguin bill length by species (base R)
+```{r}
+#No need to modify this code, just run and look at the plot
+SpeciesBars<-barplot(mean_bill_length~species, data=penguin_summary_sp, 
+                     las=2, #rotate axis labels
+                     col = "dodgerblue", #set bar color
+                     border = "black", #set border color
+                     ylim = c(0, 60), #set y-axis limits
+                     ylab="Bill length (mm)", #write y-axis label
+                     xlab= "") #no x-axis label
+
+#Now if we want to add standard error bars, this is what we would need to do
+with(penguin_summary_sp, #to save keystrokes, set the dataframe name
+     arrows(x0=SpeciesBars,y0=mean_bill_length-sd_bill_length, #set starting coordinate for error bar
+            y1=mean_bill_length+sd_bill_length, #set end coordinate for error bar
+            lwd = 1.5, #set line thickness
+            code = 3, #arrow head on both sides of line
+            angle = 90, #change from arrow to flat bar
+            length = 0.05)) #set length of whisker
+```
+
+### [Chunk 4] Penguin bill length by species and sex (base R)
+If we wanted to make a grouped bar plot where we show average bill length broken down by sex and species, it would look something like this.
+
+```{r }
+
+barcol <- viridis(3)[penguin_summary_sp_sex$species]
+  #Viridis is a color-blind friendly palette
+  #you control the number of colors generated in parenthesis
+  #makes a list of colors to use for the 6 bars
+
+barplot(penguin_summary_sp_sex$mean_bill_length, 
+        col=barcol, border="grey70", #adjust colors
+        names.arg=penguin_summary_sp_sex$sex, #write bar labels
+        las=2, #rotate axis labels 
+        xlab="",ylab="Bill length (mm)", #write axis labels
+        ylim=c(0,60)) #set axis limits
+
+legend(x=0,y=70, #x and y location of legend
+       levels(penguins$species), #labels for legend
+       fill=viridis(3), #colors for legend
+       border="grey70", #color of border
+       horiz=T, #make legend horizontal
+       bty="n", #no box around the legend
+       xpd = T) #expand the plotting area to allow legend in margin
+
+box() #add a box around the plotting area
+
+```
+
+
+
+## Bar plots in ggplot
+ggplot is a package designed for the purpose of making visual graphics. Many R users make graphs with the ggplot package.
+
+### [Chunk 5] Penguin bill length by species (ggplot)
+
+```{r, echo=TRUE}
+
+#Here we are again plotting average bill length by species, but note the differences in syntax
+ggplot(penguin_summary_sp, aes(x=species, y=mean_bill_length))+ #identifies data and variables to plot
+  geom_bar(stat="identity", #identifies what type of plot element you want to add (bars, points) 
+           fill="steelblue4",   #set bar colors
+            width=0.5) +  #allows you to control the width of the bars
+  geom_errorbar(aes(ymin=mean_bill_length-sd_bill_length,  #set start coordinate for error bar (mean - sd)
+                ymax=mean_bill_length+sd_bill_length),  #set start coordinate for error bar (mean + sd)
+                width=.1)+ #controls the width of error bar
+  xlab("Penguin Species")+ #x axis title
+  ylab("Average bill length (mm)")+ #y axis title
+  theme_classic() #adjusts the background elements
+
+
+```
+
+### [Chunk 6] Penguin bill length by species and sex (ggplot)
+We can also do plot species and sex in a single graph.
+
+```{r, echo=TRUE}
+
+ggplot(penguin_summary_sp_sex, aes(x=species, y=mean_bill_length, fill = sex))+ #sets the variables and dataset, specifying fill here groups the data by sex
+  geom_bar(stat="identity", color="black",position=position_dodge(),width=0.5)+  #identifies what type of plot element you want to add (bars)
+  geom_errorbar(aes(ymin=mean_bill_length-sd_bill_length, ymax=mean_bill_length+sd_bill_length), width=.1,position=position_dodge(.5))+ #setting coordinates for error bars
+  xlab("Penguin Species")+ #Naming the x-axis title
+  ylab("Bill Length (mm)")+ #Naming the y-axis title
+  theme_classic()+ #sets a clean background style for the figure
+  scale_fill_manual(values=c("olivedrab4", "lightsteelblue2")) #choosing our color scheme. There are also other ways to use preset color packages like (scale_color_brewer(), viridis, or the package NatParksPalettes)
+
+```
+
+## [Chunk 7] Plot  flipper length by species and sex (using either base r or ggplot)
+
+```{r, echo=TRUE}
+#Here is the code that makes the summarized data frame that you will need to use to create your bar chart
+Adelie_island_sex <- penguins%>%
+    filter(sex!="NA")%>% #drops the NAs
+    filter(species=="Adelie")%>%
+  group_by(island, sex)%>% #group by species and sex
+  summarize(mean_flipper_length= mean(flipper_length_mm,na.rm=TRUE),
+            sd_flipper_length= sd(flipper_length_mm,na.rm=TRUE))
+
+
+#Use either plotting approach (base R or ggplot) to make a  bar plot of flipper length of Adelie penguins across islands and sex. Use dataframe "Adelie_island_sex".
+
+#[INSERT GRAPH BELOW]
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+
+
+
+# Scatterplots
+
+## [Chunk 8] Scatter plots using base R graphics
+First, this is how you would plot the relationship of flipper length and body mass using base R, which we have used up to this point in lab
+
+```{r, echo=TRUE}
+ #It's better to create an object holding color names if you are going to use them in multiple plot elements
+sp_col <- c("steelblue1", "darkgreen", "goldenrod")
+
+plot(flipper_length_mm~body_mass_g, data=penguins, 
+     las=2, #rotate axis numbers
+     col=sp_col[species], #set colors by species
+     pch=c(16,2,4)[species], #symbols by species
+     ylab="Flipper length (mm)", xlab= "Body mass (mm)") #set axis labels
+
+#Need to run the ANCOVA to get the values for the slope
+flipmod <- aov(flipper_length_mm~body_mass_g*species,data=penguins)
+
+#Plotting best-fit lines for an ANCOVA can be complex
+for(i in 1:3){
+  sp <- levels(penguins$species)[i]
+  maxl <- max(penguins[penguins$species==sp,'body_mass_g'],na.rm=T)
+  minl <- min(penguins[penguins$species==sp,'body_mass_g'],na.rm=T)
+  pts <- predict(flipmod,newdata = data.frame(species=rep(sp,2),body_mass_g=c(minl,maxl)))
+  points(pts~c(minl,maxl),type="l",col=sp_col[i],lwd=2)
+  print(pts)
+}
+
+legend("topleft", #location
+       levels(penguins$species), #labels
+       bty="n", #no box
+       col=sp_col, #colors
+       pch=c(16,2,4), #symbol types
+       lwd=2) #line width
+
+```
+
+
+## [Chunk 9] Scatter plots using ggplot
+
+This is how we would plot the same thing (flipper length v body mass) but in ggplot
+```{r, echo=TRUE}
+#we can also set color palettes to use in ggplot figures
+sp_col_2 <- c("slateblue3","maroon", "slategrey")
+
+ggplot(aes(y=flipper_length_mm, x=body_mass_g, color=species), data=penguins)+ #identifies data and variables, must set grouping factor in this line of code (either through color= grouping variable or shape= grouping variable)
+  geom_point(size=1.25, na.rm=TRUE)+ #sets size of points and removes points that have NAs
+    theme_classic()+ #sets background theme
+  geom_smooth(method="lm", se=FALSE, na.rm=TRUE)+ #adds a regression lime for each species (based off variables in aes)
+    scale_color_manual(values=sp_col_2, name= "Species")+ #setting color values to those listed in color palette and setting legend title. Note that fill is used for bars, and color is used for points
+    xlab("Body mass (g)")+ #name x-axis title
+   ylab("Flipper length (mm)")+ #name y-axis title
+  theme(legend.position = c(0.2, 0.8)) #legend location via coordinates
+          #ylim(150, 240) #use this code to adjust the y axis range
+
+```
+
+## [Chunk 10] Now plot on you own!
+Now make a scatter plot using either plotting approach. Use the subset dataset provided in the chunk below (Adelie) to plot how Adelie penguin bill length and bill depths are related. Seperate colors and regression lines by sex.
+
+```{r }
+Adelie <- penguins%>%
+      filter(sex!="NA")%>% #drops the NAs
+    filter(species=="Adelie")%>%
+    droplevels()
+
+#[INSERT GRAPH BELOW]
+
+
+
+
+
+
+
+
+
+
+```
